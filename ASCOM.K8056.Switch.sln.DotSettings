@@ -2,5 +2,17 @@
 	<s:Boolean x:Key="/Default/CodeInspection/CodeAnnotations/NamespacesWithAnnotations/=Machine_002ESpecifications_002EAnnotations/@EntryIndexedValue">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/DEFAULT_INTERNAL_MODIFIER/@EntryValue">Explicit</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/DEFAULT_PRIVATE_MODIFIER/@EntryValue">Explicit</s:String>
+	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">This file is part of the $SOLUTION$ project&#xD;
+&#xD;
+Copyright © 2016-$CURRENT_YEAR$ Tigra Astronomy, all rights reserved.&#xD;
+Licensed under the MIT license, see http://tigra.mit-license.org/&#xD;
+&#xD;
+File: $FILENAME$  Last modified: $CURRENT_YEAR$-$CURRENT_MONTH$-$CURRENT_DAY$@$CURRENT_TIME$ by $USER_NAME$</s:String>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=A6161FA2ECF5704A9264E31DC4996B95/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=A6161FA2ECF5704A9264E31DC4996B95/AbsolutePath/@EntryValue">D:\VS-Projects\ASCOM.K8056.Switch\ASCOM.K8056.Switch.Specifications\ASCOM.K8056.Switch.Specifications.DotSettings</s:String>
+	<s:String x:Key="/Default/Environment/InjectedLayers/FileInjectedLayer/=A6161FA2ECF5704A9264E31DC4996B95/RelativePath/@EntryValue">..\ASCOM.K8056.Switch.Specifications\ASCOM.K8056.Switch.Specifications.DotSettings</s:String>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileA6161FA2ECF5704A9264E31DC4996B95/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileA6161FA2ECF5704A9264E31DC4996B95/IsOn/@EntryValue">False</s:Boolean>
+	<s:Double x:Key="/Default/Environment/InjectedLayers/InjectedLayerCustomization/=FileA6161FA2ECF5704A9264E31DC4996B95/RelativePriority/@EntryValue">1</s:Double>
 	<s:Boolean x:Key="/Default/Environment/MemoryUsageIndicator/IsVisible/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/Housekeeping/ProjectModelSynchronizer/UseMsbuildStrategy/@EntryValue">AUTO</s:String></wpf:ResourceDictionary>

@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25402.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.K8056.Switch", "ASCOM.K8056.Switch\ASCOM.K8056.Switch.csproj", "{ED0FE6AA-E1E5-4D21-9B5E-802D50EDCCE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.K8056.Switch.Specifications", "ASCOM.K8056.Switch.Specifications\ASCOM.K8056.Switch.Specifications.csproj", "{C006703F-2193-481D-AA15-F46D2FB2A21B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.K8056.Switch.Tests", "ASCOM.K8056.Switch.Tests\ASCOM.K8056.Switch.Tests.csproj", "{FA340F7D-1969-4C45-AE7C-8318DA723BFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{ED0FE6AA-E1E5-4D21-9B5E-802D50EDCCE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED0FE6AA-E1E5-4D21-9B5E-802D50EDCCE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED0FE6AA-E1E5-4D21-9B5E-802D50EDCCE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C006703F-2193-481D-AA15-F46D2FB2A21B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C006703F-2193-481D-AA15-F46D2FB2A21B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C006703F-2193-481D-AA15-F46D2FB2A21B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C006703F-2193-481D-AA15-F46D2FB2A21B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA340F7D-1969-4C45-AE7C-8318DA723BFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA340F7D-1969-4C45-AE7C-8318DA723BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA340F7D-1969-4C45-AE7C-8318DA723BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA340F7D-1969-4C45-AE7C-8318DA723BFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
