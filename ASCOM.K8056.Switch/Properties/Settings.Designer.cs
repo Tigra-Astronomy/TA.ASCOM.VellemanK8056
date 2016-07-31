@@ -46,5 +46,14 @@ namespace ASCOM.K8056.Properties {
                 this["ConnectionString"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int MinimumMillisecondsBetweenTransactions {
+            get {
+                return ((int)(this["MinimumMillisecondsBetweenTransactions"]));
+            }
+        }
     }
 }

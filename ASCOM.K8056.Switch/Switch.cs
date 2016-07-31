@@ -2,13 +2,15 @@
 // 
 // Copyright © 2015-2016 Tigra Networks., all rights reserved.
 // 
-// File: Switch.cs  Last modified: 2016-07-31@02:56 by Tim Long
+// File: Switch.cs  Last modified: 2016-07-31@03:49 by Tim Long
 
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ASCOM.DeviceInterface;
 using ASCOM.K8056.Properties;
+using NLog;
 
 namespace ASCOM.K8056
     {
@@ -19,6 +21,19 @@ namespace ASCOM.K8056
     [ClassInterface(ClassInterfaceType.None)]
     internal class Switch : ISwitchV2
         {
+        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
+        private readonly DeviceLayer device;
+
+        public Switch()
+            {
+#if DEBUG_IN_EXTERNAL_APP
+            MessageBox.Show("Attach debugger now");
+#endif
+            HandleAssemblyResolveEvents();
+            device = CompositionRoot.GetDeviceLayer();
+            }
+
+
         public void SetupDialog()
             {
             var form = new SetupDialog();
@@ -113,5 +128,42 @@ namespace ASCOM.K8056
         public ArrayList SupportedActions { get; }
 
         public short MaxSwitch { get; }
+
+        /// <summary>
+        ///     Disconnects from the device.
+        /// </summary>
+        private void Disconnect()
+            {
+            device.Close();
+            }
+
+        /// <summary>
+        ///     Connects to the device.
+        /// </summary>
+        /// <exception cref="ASCOM.DriverException">
+        ///     Failed to connect. Open apparently succeeded but then the device reported that
+        ///     is was offline.
+        /// </exception>
+        private void Connect()
+            {
+            if (!device.IsOnline) // Don't try to re-open a port that is already connected.
+                device.Open();
+            if (!device.IsOnline)
+                {
+                Log.Error("Connect failed - device reported offline");
+                throw new DriverException(
+                    "Failed to connect. Open apparently succeeded but then the device reported that is was offline.");
+                }
+            device.PerformOnConnectTasks();
+            }
+
+        /// <summary>
+        ///     Installs a custom assembly resolver into the AppDomain so that the driver can find its
+        ///     referenced assemblies.
+        /// </summary>
+        private void HandleAssemblyResolveEvents()
+            {
+            AppDomain.CurrentDomain.AssemblyResolve += AscomDriverAssemblyResolver.ResolveSupportAssemblies;
+            }
         }
     }
