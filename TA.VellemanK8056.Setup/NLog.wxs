@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <ComponentGroup Id="cgNLog">
+      <Component Id="cmpNLog" Directory="INSTALLFOLDER" Guid="*">
+        <File Id="filNLogDll" Source="$(var.AscomDriver.TargetDir)NLog.dll" Vital="yes"
+              KeyPath="yes" />
+        <File Id="filNLogConfig" Source="$(var.AscomDriver.TargetDir)NLog.dll.nlog" Vital="no" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
