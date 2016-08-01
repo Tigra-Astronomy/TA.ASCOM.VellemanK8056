@@ -55,5 +55,16 @@ namespace ASCOM.K8056.Properties {
                 return ((int)(this["MinimumMillisecondsBetweenTransactions"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection SwitchNames {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SwitchNames"]));
+            }
+            set {
+                this["SwitchNames"] = value;
+            }
+        }
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.CURRENTDIR)\Config.wxi?>
+  <Fragment>
+    <FeatureGroup Id="fgRoot">
+      <Feature Id="featAscomDriver" Title="ASCOM Switch Driver" Level="1">
+        <ComponentGroupRef Id="cgAscomDriver" />
+      </Feature>
+    </FeatureGroup>
+  </Fragment>
+</Wix>
