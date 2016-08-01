@@ -166,6 +166,11 @@
     <Compile Include="NoReplyTransaction.cs" />
     <Compile Include="Octet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -197,14 +202,27 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="SetupDialog.resx">
       <DependentUpon>SetupDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\ASCOM-150x175.png" />
+    <Content Include="Resources\ASCOM.png" />
+    <Content Include="Resources\Bug 300.png" />
+    <Content Include="Resources\BugT 300.png" />
+    <Content Include="Resources\ReactiveASCOM520x520.png" />
+    <Content Include="Resources\TiFra Astronomy Logo with Text 96x108.png" />
+    <Content Include="Resources\TiGra Astronomy logo 800x900.png" />
+    <Content Include="Resources\TiGra Astronomy logo no text 616x705.png" />
     <Content Include="Resources\TigraAstronomy.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\Watermark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

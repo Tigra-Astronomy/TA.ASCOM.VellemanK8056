@@ -37,7 +37,7 @@ namespace ASCOM.K8056.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM1:2400")]
+        [global::System.Configuration.DefaultSettingValueAttribute("COM1:2400,None,8,Two,NoDTR,NoRTS")]
         public string ConnectionString {
             get {
                 return ((string)(this["ConnectionString"]));
@@ -64,6 +64,96 @@ namespace ASCOM.K8056.Properties {
             }
             set {
                 this["SwitchNames"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("None")]
+        public global::System.IO.Ports.Parity CommParity {
+            get {
+                return ((global::System.IO.Ports.Parity)(this["CommParity"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Two")]
+        public global::System.IO.Ports.StopBits CommStopBits {
+            get {
+                return ((global::System.IO.Ports.StopBits)(this["CommStopBits"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("None")]
+        public global::System.IO.Ports.Handshake CommHandshake {
+            get {
+                return ((global::System.IO.Ports.Handshake)(this["CommHandshake"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CommDtrActive {
+            get {
+                return ((bool)(this["CommDtrActive"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CommRtsActive {
+            get {
+                return ((bool)(this["CommRtsActive"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2400")]
+        public int CommDataRate {
+            get {
+                return ((int)(this["CommDataRate"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://tigra-astronomy.com")]
+        public string AboutTigra {
+            get {
+                return ((string)(this["AboutTigra"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://ascom-standards.org")]
+        public string AboutAscom {
+            get {
+                return ((string)(this["AboutAscom"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://tigra-astronomy.com/reactive-communications-for-ascom")]
+        public string AboutReactiveAscom {
+            get {
+                return ((string)(this["AboutReactiveAscom"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int CommDataBits {
+            get {
+                return ((int)(this["CommDataBits"]));
             }
         }
     }
