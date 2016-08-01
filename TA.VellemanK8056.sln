@@ -9,6 +9,11 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "TA.VellemanK8056.Setup", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOM.K8056.Switch.Specifications", "ASCOM.K8056.Switch.Specifications\ASCOM.K8056.Switch.Specifications.csproj", "{C006703F-2193-481D-AA15-F46D2FB2A21B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{D035A9A3-925E-4E80-93D9-7ED7E7D229A9}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.md = ReadMe.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
