@@ -8,7 +8,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using ASCOM.Internal;
 using NLog;
 
 namespace ASCOM.K8056

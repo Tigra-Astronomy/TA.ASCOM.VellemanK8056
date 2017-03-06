@@ -21,5 +21,8 @@
   &lt;string&gt;Relay 7&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
+    <Setting Name="PortName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">COM1</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

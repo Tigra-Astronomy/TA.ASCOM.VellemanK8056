@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.CURRENTDIR)\Config.wxi?>
+
+  <!--
+  This custom table specifies the information to be added or removed from the ASCOM Profile Store. Essentially,
+  this is what makes the driver appear in (or disappear from) the ASCOM Chooser.
+  
+  The table should contain a <Row/> for each driver being installed or uninstalled. Each table row contains:
+    Id              integer unique row ID, sequential starting from 1.
+    DriverId        string  ASCOM Driver ID (also known as the COM ProgID) of the driver to be registered.
+    ChooserName     string  The human-readable driver name as it is to appear in the ASCOM Chooser.
+    
+    The data from this table drives the actions of the caPrepareAscomDeviceProfiles, caRegisterDrivers
+    and caUnegisterDrivers custom actions.
+    
+    caPrepareAscomDeviceProfiles runs in Immediate mode. It checks whether each driver is already registered and
+        if it is, then its settings are exported. The list of drivers and exported settings is bundled up
+        in a format that can be used by the deferred-mode custom actions.
+    caRegisterDrivers runs in Deferred mode and processes the data prepared by caPrepareAscomDeviceProfiles.
+        It registers each driver with the ASCOM Profile Store. Then, if exported settings are available,
+        they are imported into the newly-created profile entry.
+    caUnegisterDrivers runs in Deferred mode and processes the data prepared by caPrepareAscomDeviceProfiles.
+        It deletes the ASCOM Profile Store entry for each driver.
+        
+    Note that when repairing or upgrading, each driver will first be unregistered as part of an uninstall,
+    then re-registered as part of the (re) install. To avoid loss of settings in these situations,
+    caPrepareAscomDeviceProfiles exports each driver's settings before the profiles are removed. The settings
+    are later re-imported by caRegisterDrivers.
+  -->
+  
+  <Fragment>
+    <!--
+    The following property is needed because WiX doesn't have a CustomTableRef, so we need some other way to reference the fragment.
+    You must reference this property from somewhere within your <Product/> element or the entire fragment will be optimized away.
+    -->
+    <Property Id="IncludeAscomDriverTypesTable" Value="1"></Property>
+    <CustomTable Id="AscomDeviceProfiles">
+      <Column Id="Id" Category="Identifier" PrimaryKey="yes" Type="int" Width="4" Description="Unique row ID" />
+      <Column Id="DriverId" Category="Text" Type="string" PrimaryKey="no" />
+      <Column Id="ChooserName" Category="Text" Type="string" PrimaryKey="no" Description="The name that will appear in the ASCOM Chooser"/>
+      
+      <!--
+      Include your drivers each in its own <Row/>.
+      For the simple case of a single driver, we use the variables defined in Config.wxi
+      If you have multiple drivers then we'd recommend adding them as additional definitions in Config.wxi,
+      then follow our pattern for adding the additional drivers below.
+      -->
+      <Row>
+        <Data Column="Id">1</Data>
+        <Data Column="DriverId">$(var.DriverId)</Data>
+        <Data Column="ChooserName">$(var.ChooserName)</Data>
+      </Row>
+    </CustomTable>
+  </Fragment>
+</Wix>

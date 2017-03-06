@@ -10,6 +10,7 @@ using ASCOM.K8056.Properties;
 using NLog;
 using NodaTime;
 using TA.Ascom.ReactiveCommunications;
+using PostSharp.Patterns.Contracts;
 
 namespace ASCOM.K8056
     {
@@ -22,7 +23,7 @@ namespace ASCOM.K8056
         /// </summary>
         /// <param name="channel">The communications channel, which should be closed.</param>
         /// <param name="timeProvider">A time provider. Optional; defaults to the system clock.</param>
-        internal DeviceLayer(ICommunicationChannel channel, IClock timeProvider = null)
+        internal DeviceLayer([Required] ICommunicationChannel channel, IClock timeProvider = null)
             {
             this.channel = channel;
             this.timeProvider = timeProvider ?? SystemClock.Instance;
@@ -53,7 +54,7 @@ namespace ASCOM.K8056
         ///     NOTE: No relationship is established between <paramref name="processor" /> and <paramref name="observer" />
         ///     here. If any relationship is required, it must be established prior to passing the instances in.
         /// </remarks>
-        internal void Open(ITransactionProcessor processor, TransactionObserver observer)
+        internal void Open([Required] ITransactionProcessor processor, TransactionObserver observer)
             {
             transactionObserver = observer ?? new TransactionObserver(channel);
             transactionProcessor = processor;

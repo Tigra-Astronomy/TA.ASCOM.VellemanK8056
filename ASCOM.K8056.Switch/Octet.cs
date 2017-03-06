@@ -1,14 +1,16 @@
-// This file is part of the TA.UWP.Devices project
+// This file is part of the ASCOM.K8056.Switch project
 // 
-// Copyright © 2015-2016 Tigra Astronomy, all rights reserved.
+// Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
+// Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: Octet.cs Last modified: 2016-06-02@12:06 by Tim Long
+// File: Octet.cs  Last modified: 2016-07-27@15:07 by Tim Long
 
 using System;
 using System.Diagnostics.Contracts;
 using System.Text;
+using PostSharp.Patterns.Contracts;
 
-namespace TA.UWP
+namespace ASCOM.K8056
     {
     /// <summary>
     ///     An immutable representation of an 8 bit byte, with each bit individually addressable. In most cases an Octet
@@ -17,10 +19,10 @@ namespace TA.UWP
     /// </summary>
     public struct Octet : IEquatable<Octet>
         {
-        readonly bool[] bits;
+        private readonly bool[] bits;
 
         [ContractInvariantMethod]
-        void ObjectInvariant()
+        private void ObjectInvariant()
             {
             Contract.Invariant(bits != null);
             Contract.Invariant(bits.Length == 8, "Consider using Octet.FromInt() instead of new Octet()");
@@ -30,7 +32,7 @@ namespace TA.UWP
         ///     Initializes a new instance of the <see cref="Octet" /> struct from an array of at least 8 booleans.
         /// </summary>
         /// <param name="bits">The bits; there must be exactly 8.</param>
-        Octet(bool[] bits)
+        private Octet([Required] bool[] bits)
             {
             Contract.Requires(bits != null);
             Contract.Requires(bits.Length == 8);

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <ComponentGroup Id="cgPostSharp" Directory="INSTALLFOLDER" >
+      <Component Id="cmpPostSharp"  Guid="{74AF5BE1-97AD-4772-BD8C-831DEAD2F6FD}">
+        <File Id="filPostSharp" Source="$(var.SwitchDriver.TargetDir)PostSharp.dll"                         Vital="yes" KeyPath="yes" />
+        <File Id="filPostSharpPatternsModel" Source="$(var.SwitchDriver.TargetDir)PostSharp.Patterns.Model.dll"  Vital="yes" />
+        <File Id="filPostSharpPatternsCommon" Source="$(var.SwitchDriver.TargetDir)PostSharp.Patterns.Common.dll"  Vital="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

@@ -3,23 +3,24 @@
 // Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: NoReplyTransaction.cs  Last modified: 2016-06-28@01:41 by Tim Long
+// File: NoReplyTransaction.cs  Last modified: 2016-07-25@09:53 by Tim Long
 
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PostSharp.Patterns.Contracts;
 using TA.Ascom.ReactiveCommunications;
 
 namespace ASCOM.K8056
     {
     public class NoReplyTransaction : DeviceTransaction
         {
-        public NoReplyTransaction(string command) : base(command)
+        public NoReplyTransaction([Required] string command) : base(command)
             {
             Timeout = TimeSpan.FromMilliseconds(1); // Very short, as no response is expected.
             }
 
-        public override void ObserveResponse(IObservable<char> source)
+        public override void ObserveResponse([Required] IObservable<char> source)
             {
             // No reply is expected, so instead of observing the response stream, we immediately complete.
             OnCompleted();
@@ -29,7 +30,7 @@ namespace ASCOM.K8056
         ///     Computes the checksum of the supplied bytes.
         /// </summary>
         /// <param name="bytes">The bytes in the data packet.</param>
-        protected internal static byte ComputeChecksum(IEnumerable<byte> bytes)
+        protected internal static byte ComputeChecksum([Required] IEnumerable<byte> bytes)
             {
             byte total = 0;
             foreach (var item in bytes)

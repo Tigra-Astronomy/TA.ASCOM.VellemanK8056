@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.CURRENTDIR)\Config.wxi?>
+  <?if $(var.Win64) ?>
+  <?define CLSIDRoots = "CLSID;Wow6432Node\CLSID"?>
+  <?else ?>
+  <?define CLSIDRoots = "CLSID"?>
+  <?endif?>
+
+
+  <!--
+    ASCOM Driver Assembly with related COM Interop registrations for both 32-bit and 64-bit systems.
+    This is our recommended method of installing the driver's COM Interop registrations. We do NOT recommend
+    doing the registration programmatically from within the driver code.
+    If you are registering more than one driver, then make a separate copy of this file
+    for each driver and rename the filDriverAssembly ID.
+  -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER" />
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="cgAscomSwitchDriver">
+      <ComponentGroupRef Id="cgReactiveAscom"/>
+      <ComponentGroupRef Id="cgNLog"/>
+      <ComponentGroupRef Id="cgNodaTime"/>
+      <Component Id="cmpAscomSwitchDriver" Directory="INSTALLFOLDER" Guid="{A3E937C6-4E32-4D3E-8222-8F9B0517587D}">
+        <File Id="filDriverAssembly" Source="$(var.SwitchDriver.TargetPath)"
+              KeyPath="yes"
+              Vital="yes" Assembly=".net" AssemblyApplication="filDriverAssembly" />
+        <RegistryKey Root="HKCR" Key="$(var.DriverId)">
+          <RegistryValue Type="string" Value="$(var.ChooserName)" />
+          <RegistryKey Key="CLSID">
+            <RegistryValue Type="string" Value="$(var.DriverGuid)" />
+          </RegistryKey>
+        </RegistryKey>
+
+        <?foreach CLSID in $(var.CLSIDRoots) ?>
+        <RegistryKey Root="HKCR" Key="$(var.CLSID)">
+          <RegistryKey Key="$(var.DriverGuid)">
+            <RegistryValue Type="string" Value="$(var.DriverTypeName)" />
+            <RegistryKey Key="InprocServer32">
+              <RegistryValue Type="string" Value="mscoree.dll" />
+              <RegistryValue Type="string" Name="ThreadingModel" Value="Both" />
+              <RegistryValue Type="string" Name="Class" Value="$(var.DriverTypeName)" />
+              <RegistryValue Type="string" Name="Assembly" Value="!(bind.assemblyFullname.filDriverAssembly)" />
+              <RegistryValue Type="string" Name="RuntimeVersion" Value="v4.0.30319" />
+              <RegistryValue Type="string" Name="CodeBase" Value="file:///[#filDriverAssembly]" />
+              <RegistryKey Key="!(bind.fileVersion.filDriverAssembly)">
+                <RegistryValue Type="string" Name="Class" Value="$(var.DriverTypeName)" />
+                <RegistryValue Type="string" Name="Assembly"
+                               Value="!(bind.assemblyFullname.filDriverAssembly)" />
+                <RegistryValue Type="string" Name="RuntimeVersion" Value="v4.0.30319" />
+                <RegistryValue Type="string" Name="CodeBase" Value="file:///[#filDriverAssembly]" />
+              </RegistryKey>
+            </RegistryKey>
+            <RegistryKey Key="ProgId">
+              <RegistryValue Type="string" Value="$(var.DriverId)" />
+            </RegistryKey>
+            <RegistryKey Key="Implemented Categories">
+              <RegistryKey Key="{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" /> <!--Don't change this GUID-->
+            </RegistryKey>
+          </RegistryKey>
+        </RegistryKey>
+        <?endforeach?>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

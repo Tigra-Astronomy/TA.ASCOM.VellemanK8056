@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.CURRENTDIR)\Config.wxi?>
+
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="!(bind.FileVersion.filDriverAssembly)"
+           Manufacturer="$(var.Manufacturer)" UpgradeCode="{C8762426-4D21-4A19-B547-BF950664475F}">
+    <Package InstallerVersion="400" Compressed="yes" InstallPrivileges="elevated" InstallScope="perMachine"
+             Platform="$(var.Platform)" />
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <Directory Id="INSTALLFOLDER" Name="$(var.InstallName)"></Directory>
+      </Directory>
+    </Directory>
+    <Feature Id="featAscomDriver" Title="ASCOM Switch Driver" Level="1">
+      <!-- Note: The following ComponentGroupRef is required to pull in generated authoring from project references. -->
+      <ComponentGroupRef Id="cgAscomSwitchDriver" />
+      <!--<ComponentGroupRef Id="cgHelperAssemblies" />-->
+    </Feature>
+    <!-- ARP: Properties for Add/Remove Programs -->
+    <Property Id="ARPCOMMENTS" Value="$(var.ProductName)" />
+    <Property Id="ARPCONTACT" Value="Tim@tigra-astronomy.com" />
+    <Property Id="ARPHELPTELEPHONE" Value="+44 (1227) 634430" />
+    <Property Id="ARPURLINFOABOUT" Value="http://tigra-astronomy.com" />
+
+    <Property Id="PREVIOUSVERSIONSINSTALLED" Secure="yes" />
+    <Upgrade Id="{C2F50E74-17F8-463F-B85D-A580A2835642}">
+      <UpgradeVersion Property='PREVIOUSVERSIONSINSTALLED' OnlyDetect="no" IncludeMinimum='yes' Minimum='1.0.0'
+                      IncludeMaximum='yes' Maximum='$(var.ProductVersion)' />
+      <UpgradeVersion Minimum="$(var.ProductVersion)" IncludeMinimum="no" OnlyDetect="yes" Language="1033"
+                      Property="NEWERPRODUCTFOUND" />
+    </Upgrade>
+
+    <!-- Scheduling of actions -->
+    <InstallExecuteSequence>
+      <Custom Action="PreventDowngrading" After="FindRelatedProducts">
+        NEWERPRODUCTFOUND AND NOT Installed
+      </Custom>
+      <RemoveExistingProducts Before='InstallInitialize' />
+      <Custom Action='IsPrivileged' Before='LaunchConditions'>Not Privileged</Custom>
+    </InstallExecuteSequence>
+
+    <!-- Custom Actions -->
+    <CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
+    <CustomAction Id="IsPrivileged" Error="You must have administrator rights to install this product." />
+
+    <!-- Launch Condition to check that x64 installer is used on x64 systems [DDW-57] -->
+    <!-- Credit to Yan Sklyarenko via Stack Overflow for suggesting this format       -->
+    <Condition Message="Please use the correct installer for your operating system - x86 for 32-bit, x64 for 64-bit.">
+      <?if $(var.Win64) = "yes" ?>
+      VersionNT64
+      <?else?>
+      NOT VersionNT64
+      <?endif?>
+    </Condition>
+
+
+    <!-- External References -->
+    <PropertyRef Id="IncludeAscomDriverTypesTable" />
+    <CustomActionRef Id="caPrepareAscomDeviceProfiles" />
+    <CustomActionRef Id="caRegisterDrivers" />
+    <CustomActionRef Id="caUnregisterDrivers" />
+  </Product>
+</Wix>

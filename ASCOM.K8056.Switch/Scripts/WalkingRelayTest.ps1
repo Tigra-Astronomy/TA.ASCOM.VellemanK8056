@@ -1,4 +1,4 @@
-Push-Location .\bin\Debug
+Push-Location ..\bin\Debug
 Add-Type -path .\ASCOM.K8056.Switch.dll
 $sw = New-Object ASCOM.K8056.Switch
 $sw.Connected = $true

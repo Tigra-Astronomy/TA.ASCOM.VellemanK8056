@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <ComponentGroup Id="cgNodaTime" Directory="INSTALLFOLDER" >
+      <Component Id="cmpNodaTime" Guid="*">
+        <File Id="filNodaTimeDll"
+              Source="$(var.SwitchDriver.TargetDir)NodaTime.dll"  
+              Vital="yes" 
+              KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

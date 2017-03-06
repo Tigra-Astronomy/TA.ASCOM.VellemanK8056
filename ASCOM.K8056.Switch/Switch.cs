@@ -3,16 +3,16 @@
 // Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: Switch.cs  Last modified: 2016-06-27@23:41 by Tim Long
+// File: Switch.cs  Last modified: 2016-07-31@00:15 by Tim Long
 
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Runtime.InteropServices;
 using ASCOM.DeviceInterface;
 using ASCOM.K8056.Properties;
 using JetBrains.Annotations;
 using NLog;
-using TA.UWP;
 #if DEBUG_IN_EXTERNAL_APP
 using System.Windows.Forms;
 
@@ -20,9 +20,18 @@ using System.Windows.Forms;
 
 namespace ASCOM.K8056
     {
+    [ProgId(DeviceId)]
+    [Guid("A864F06E-B5CC-4566-BCBF-59FAC56E6DDB")]
+    [ComVisible(true)]
+    [ClassInterface(ClassInterfaceType.None)]
     [UsedImplicitly]
     public class Switch : ISwitchV2, IDisposable
         {
+        internal const string DeviceName = "Velleman K8056";
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Switch" /> class.
+        /// </summary>
         public Switch()
             {
 #if DEBUG_IN_EXTERNAL_APP
@@ -34,7 +43,18 @@ namespace ASCOM.K8056
 
         public void SetupDialog()
             {
-            throw new System.NotImplementedException();
+            var dialog = new SetupDialog();
+            var result = dialog.ShowDialog();
+            switch (result)
+                {
+                    case DialogResult.OK:
+                        Settings.Default.Save();
+                        break;
+                    default:
+                        Settings.Default.Reload();
+                        break;
+                }
+            dialog.Dispose();
             }
 
         public string Action(string ActionName, string ActionParameters)
@@ -151,7 +171,7 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
         /// <summary>
         ///     The short name of the driver, for display purposes
         /// </summary>
-        public string Name => "Velleman K8056";
+        public string Name => DeviceName;
 
         /// <summary>
         ///     Returns the list of action names supported by this driver (currently none supported).
@@ -229,6 +249,7 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
         private readonly DeviceLayer device;
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private Octet shadow = Octet.Zero;
+        internal const string DeviceId = "ASCOM.K8056.Switch";
 
         protected virtual void Dispose(bool fromUserCode)
             {

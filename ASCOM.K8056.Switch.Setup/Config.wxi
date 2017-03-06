@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include>
+  <!-- User Configuration - you must ensure all these variables have correct values for your project -->
+  <?define InstallName = "ASCOM Driver for Velleman K8056 Relay Card" ?>
+  <?define Manufacturer = "Tigra Astronomy" ?>
+  <?define DriverId = "ASCOM.K8056.Switch" ?>
+  <?define DriverGuid = "{A864F06E-B5CC-4566-BCBF-59FAC56E6DDB}" ?>  <!-- Drive CLSID, the [Guid()] attribute applied to the driver class -->
+  <?define DriverTypeName = "ASCOM.K8056.Switch" ?> <!-- Driver .NET type (class) name -->
+  <?define ChooserName = "Velleman K8056 Relay Module" ?>
+  <!-- End of User Configuration - do not edit anything beyond this point -->
+
+  <!-- Define platform-specific names and locations -->
+  <?if $(var.Platform) = x64 ?>
+  <?define ProductName = "$(var.InstallName) (x64)" ?>
+  <?define Win64 = "yes" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?define PlatformCommonFilesFolder = "CommonFiles64Folder" ?>
+  <?else ?>
+  <?define ProductName = "$(var.InstallName) (x86)" ?>
+  <?define Win64 = "no" ?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?define PlatformCommonFilesFolder = "CommonFilesFolder" ?>
+  <?endif ?>
+
+  <!-- Set installer version based on the file version of the main assembly. -->
+  <!-- This assumes there is a file with Id="filDriverAssembly" of course (see AscomDriver.wxs) -->
+  <?define ProductVersion="!(bind.FileVersion.filDriverAssembly)"?>
+</Include>
