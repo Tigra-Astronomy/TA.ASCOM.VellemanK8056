@@ -5,7 +5,7 @@
 // 
 // File: EnergizeRelayTransaction.cs  Last modified: 2016-06-27@22:11 by Tim Long
 
-namespace ASCOM.K8056
+namespace TA.VellemanK8056.DeviceInterface
     {
     internal class EnergizeRelayTransaction : NoReplyTransaction
         {

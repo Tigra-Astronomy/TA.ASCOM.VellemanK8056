@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="53b6437b-f4a4-4f5f-8aa7-bb36252b27d1" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="583f5e42-7cc2-480d-90a1-ccd17930d76a" name="LocalServer" forbiddenNamespaceDependencies="TA.Ascom.ReactiveCommunications">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="e089b6ef-1a02-48ae-9fcc-34e3744530d1" direction="Forward">
+          <layerMoniker Id="6f4f2fee-feab-4d3f-ac0a-a7f462004174" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+    </layer>
+    <layer Id="6f4f2fee-feab-4d3f-ac0a-a7f462004174" name="DeviceCommunications" requiredNamespace="TA.VellemanK8056.DeviceInterface">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="230bb2a4-9bd5-430a-ab8b-d82cac8ec01d" direction="Forward">
+          <layerMoniker Id="a6b147a9-a9da-4625-998b-c558919b2178" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="d68b679a-971e-4c46-88e8-08630a4d449b" name="TA.VellemanK8056.DeviceInterface">
+          <ArtifactNode Label="TA.VellemanK8056.DeviceInterface" Category="CodeSchema_Project" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="fa93e24a-10e3-49d8-9ef3-b73baa930e2c" name="EnergizeRelayTransaction.cs">
+          <ArtifactNode Label="EnergizeRelayTransaction.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj File=../TA.VellemanK8056.DeviceInterface/EnergizeRelayTransaction.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="0f5ce8ed-1aae-40c8-9c44-9b4c3baf7cc3" name="NoReplyTransaction.cs">
+          <ArtifactNode Label="NoReplyTransaction.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj File=../TA.VellemanK8056.DeviceInterface/NoReplyTransaction.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="246b0327-790b-4f68-bb2b-1b06ddc94dc9" name="Octet.cs">
+          <ArtifactNode Label="Octet.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj File=../TA.VellemanK8056.DeviceInterface/Octet.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="f999e119-3cc2-41a3-9cd9-9072d5f727cb" name="ReleaseRelayTransaction.cs">
+          <ArtifactNode Label="ReleaseRelayTransaction.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj File=../TA.VellemanK8056.DeviceInterface/ReleaseRelayTransaction.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="38eb12c4-9414-4ec7-889a-87375bf7304e" name="DeviceLayer.cs">
+          <ArtifactNode Label="DeviceLayer.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../TA.VellemanK8056.DeviceInterface/TA.VellemanK8056.DeviceInterface.csproj File=../TA.VellemanK8056.DeviceInterface/DeviceLayer.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="5c728d1c-77c2-41f1-960b-f83e5c3246fa" name="ASCOM Switch" requiredNamespace="ASCOM.K8056" forbiddenNamespaceDependencies="TA.Ascom.ReactiveCommunications">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="d973cebf-d051-445a-9c2e-f4b598bce08b" direction="Forward">
+          <layerMoniker Id="6f4f2fee-feab-4d3f-ac0a-a7f462004174" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="5542f33d-51c2-4d01-b4d9-d2ccfb97633b" direction="Forward">
+          <layerMoniker Id="583f5e42-7cc2-480d-90a1-ccd17930d76a" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="28d6e2e5-0e87-4dff-a51a-4446dce66700" name="ASCOM.K8056.Switch">
+          <ArtifactNode Label="ASCOM.K8056.Switch" Category="CodeSchema_Project" Id="(Assembly=../ASCOM.K8056.Switch/ASCOM.K8056.Switch.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="4b201fea-de04-49c4-9a69-30dfe9c81adc" name="AscomDriverAssemblyResolver.cs">
+          <ArtifactNode Label="AscomDriverAssemblyResolver.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../ASCOM.K8056.Switch/ASCOM.K8056.Switch.csproj File=../ASCOM.K8056.Switch/AscomDriverAssemblyResolver.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="245b94bf-0562-4782-8bc9-9dceac154e2b" name="CompositionRoot.cs">
+          <ArtifactNode Label="CompositionRoot.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../ASCOM.K8056.Switch/ASCOM.K8056.Switch.csproj File=../ASCOM.K8056.Switch/CompositionRoot.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="7a046fc9-70f0-446e-8bf5-3593060f478e" name="StringExtensions.cs">
+          <ArtifactNode Label="StringExtensions.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../ASCOM.K8056.Switch/ASCOM.K8056.Switch.csproj File=../ASCOM.K8056.Switch/StringExtensions.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+        <reference Id="c646bdc3-0d0e-4563-89f4-06b1897093e2" name="Switch.cs">
+          <ArtifactNode Label="Switch.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=../ASCOM.K8056.Switch/ASCOM.K8056.Switch.csproj File=../ASCOM.K8056.Switch/Switch.cs)">
+            <Category Ref="File" />
+          </ArtifactNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="a6b147a9-a9da-4625-998b-c558919b2178" name="Reactive ASCOM" requiredNamespace="TA.Ascom.ReactiveCommunication" />
+  </layers>
+</layerModel>

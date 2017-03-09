@@ -1,21 +1,22 @@
 // This file is part of the ASCOM.K8056.Switch project
 // 
-// Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
+// Copyright © 2016-2017 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: Octet.cs  Last modified: 2016-07-27@15:07 by Tim Long
+// File: Octet.cs  Last modified: 2017-03-06@18:13 by Tim Long
 
 using System;
 using System.Diagnostics.Contracts;
 using System.Text;
 using PostSharp.Patterns.Contracts;
 
-namespace ASCOM.K8056
+namespace TA.VellemanK8056.DeviceInterface
     {
     /// <summary>
-    ///     An immutable representation of an 8 bit byte, with each bit individually addressable. In most cases an Octet
-    ///     is interchangeable with a <see cref="byte" /> (implicit conversion operators are provided). An Octet can be
-    ///     explicitly converted (cast) to or from an integer.
+    ///     An immutable representation of an 8 bit byte, with each bit individually addressable. In
+    ///     most cases an Octet is interchangeable with a <see cref="byte" /> (implicit conversion
+    ///     operators are provided). An Octet can be explicitly converted (cast) to or from an
+    ///     integer.
     /// </summary>
     public struct Octet : IEquatable<Octet>
         {

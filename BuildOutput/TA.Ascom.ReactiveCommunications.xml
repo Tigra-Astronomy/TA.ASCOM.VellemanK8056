@@ -1,0 +1,1073 @@
+﻿<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>TA.Ascom.ReactiveCommunications</name>
+  </assembly>
+  <members>
+    <member name="T:TA.Ascom.ReactiveCommunications.DeviceEndpoint">
+      <summary>
+                Represents a device specific address that describes a connection to a device. This class cannot be instantiated and
+                must be inherited.
+            </summary>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceEndpoint.DeviceAddress">
+      <summary>
+                Gets the device address. The address format is device specific.
+                For example, for an Ethernet connection, it could be a DNS host name or an IP address.
+                For a serial port, it would be the name of the port.
+            </summary>
+      <value>The device address.</value>
+      <getter>
+        <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      </getter>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceEndpoint.FromConnectionString(System.String)">
+      <summary>
+                Creates an endpoint from a connection string. Connection strings may be in one of the following formats:
+                <list type="number"><item><term><c>COM127:115200,Even,7,One,DTR,NoRTS</c></term><description>
+                            A named serial port endpoint. The "COMx" must be present and <c>x</c> must be an integer between 1 and
+                            127, inclusive. The colon must be present if any parameters are specified, otherwise it may be omitted.
+                            Individual parameters may be omitted completely, but if they are present
+                            then they must be in the order shown and separated by a single comma and no spaces. Omitted parameters
+                            will have their default values, which are: <c>9600,None,8,One,DTR,RTS</c>. Parameters are
+                            not case sensitive. The allowed parameters are as follows:
+                            <list type="table"><item><term>Baud Rate (integer)</term><definition>
+                                        The transmission speed (in bits per second) of the serial port.
+                                        Valid values depend on the hardware configuration but typically include 300, 1200, 9600,
+                                        19200, 115200 and possibly others.
+                                    </definition></item><item><term>Parity (enumeration)</term><description>
+                                        The type of parity bit; one of the following values: None,
+                                        Even, Odd, Mark, Space
+                                    </description></item><item><term>Data Bits (integer)</term><description>The number of data bits per character; must be 7 or 8.</description></item><item><term>Stop Bits (enumeration)</term><definition>
+                                        The number of stop bits per character; one of the follwing values: Zero, One,
+                                        OnePointFive, Two.
+                                    </definition></item><item><term>DTR signal (enumeration)</term><definition>
+                                        When <c>DTR</c> is specified or the parameter omitted, then the Data Terminal Ready
+                                        signal is asserted. When specified as <c>NoDTR</c>, then Data Terminal Ready is negated.
+                                    </definition></item><item><term>RTS signal (enumeration)</term><definition>
+                                        When <c>RTS</c> is specified or the parameter omitted, then the Request To Send signal
+                                        is asserted. When specified as <c>NoRTS</c>, then Request To Send is negated.
+                                    </definition></item></list></description></item><item><term><c>hostname[:port]</c> or <c>ip-address[:port]</c></term><description>
+                            A host name, or IP address, followed by an option port number. If the port number is
+                            specified, then the colon must be present, otherwise it must be omitted.
+                        </description></item></list></summary>
+      <param name="connection">The connection string.</param>
+      <returns>A <see cref="T:TA.Ascom.ReactiveCommunications.DeviceEndpoint" /> constructed from the connection string.</returns>
+      <exception cref="T:System.NotSupportedException">The connection string is for an unsupported connection type.</exception>
+      <exception cref="T:System.ArgumentException">Invalid connection string syntax</exception>
+      <requires description="connection string was null or empty" exception="T:System.ArgumentNullException" csharp="!string.IsNullOrEmpty(connection)" vb="Not System.String.IsNullOrEmpty(connection)">!string.IsNullOrEmpty(connection)</requires>
+      <exception cref="T:System.ArgumentNullException">string.IsNullOrEmpty(connection)</exception>
+      <ensures csharp="Contract.Result&lt;TA.Ascom.ReactiveCommunications.DeviceEndpoint&gt;() != null" vb="Contract.Result(Of TA.Ascom.ReactiveCommunications.DeviceEndpoint)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.DeviceTransaction">
+      <summary>
+                Defines the common implementation for all commands
+            </summary>
+      <invariant>Response != null</invariant>
+      <invariant>completion != null</invariant>
+    </member>
+    <member name="F:TA.Ascom.ReactiveCommunications.DeviceTransaction.transactionCounter">
+      <summary>
+                Used to generate unique transaction IDs for each created transaction.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.#ctor(System.String)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.DeviceTransaction" /> class.
+            </summary>
+      <param name="command">The command to be sent to the communications channel.</param>
+      <remarks>
+                This abstract class cannot be instantiated directly and is intended to be inherited by your own transaction
+                classes.
+            </remarks>
+      <requires csharp="!string.IsNullOrEmpty(command)" vb="Not System.String.IsNullOrEmpty(command)">!string.IsNullOrEmpty(command)</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.TransactionId">
+      <summary>
+                Gets the transaction identifier of the transaction.
+                Used to match responses to commands where the protocol supports
+                multiple overlapping commands and for logging and statistics gathering.
+                Each command must have a unique transaction Id.
+            </summary>
+      <value>The transaction identifier.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Command">
+      <summary>
+                Gets or sets the command string.
+                The command must be in a format ready for sending to a transport provider.
+                In other words, commands are 'Layer 7', we are talking directly to the command
+                interpreter inside the target device.
+            </summary>
+      <value>The command string as expected by the command interpreter in the remote device.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Timeout">
+      <summary>
+                Gets or sets the time that the command can be pending before it is considered to have failed.
+                This property should be set from the constructor of a custom derived class.
+                The default value is 10 seconds.
+            </summary>
+      <value>The timeout period.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.HotTimeout">
+      <summary>
+                Gets or sets the maximum time that can elapse between the transaction being committed
+                and becoming "hot" (the active transaction).
+            </summary>
+      <value>The hot timeout.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Response">
+      <summary>
+                Gets the response string exactly as observed from the response sequence. The response is wrapped in a
+                <see cref="T:TA.Ascom.ReactiveCommunications.Maybe`1" /> to differentiate an empty response from no response or a failed response.
+                An empty Maybe indicates an error condition. Commands where no repsponse is expected will return a Maybe
+                containing <see cref="F:System.String.Empty" />, not an empty Maybe.
+            </summary>
+      <value>The response string.</value>
+      <getter>
+        <ensures csharp="Contract.Result&lt;TA.Ascom.ReactiveCommunications.Maybe&lt;string&gt;&gt;() != null" vb="Contract.Result(Of TA.Ascom.ReactiveCommunications.Maybe(Of String))() &lt;&gt; Nothing">result != null</ensures>
+      </getter>
+      <setter>
+        <requires csharp="value != null" vb="value &lt;&gt; Nothing">value != null</requires>
+      </setter>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Failed">
+      <summary>
+                Gets an indication that the transaction has failed.
+            </summary>
+      <value>
+        <c>true</c> if failed; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.ErrorMessage">
+      <summary>
+                Gets the error message for a failed transaction.
+                The response is wrapped in a <see cref="T:TA.Ascom.ReactiveCommunications.Maybe`1" /> and if there is no error, then there will be no value:
+                <c>ErrorMessage.Any() == false</c></summary>
+      <value>May contain an error message.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.GenerateTransactionId">
+      <summary>
+                Generates the transaction identifier by incrementing a shared counter using an atomic operation.
+                At a constant rate of 1,000 transactions per second, the counter will not wrap for several million years.
+                This effectively guarantees that every transaction across all threads will have a unique ID, within any given
+                session.
+            </summary>
+      <returns>System.Int64.</returns>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.WaitForCompletionOrTimeout">
+      <summary>
+                Waits (blocks) until the transaction is completed or a timeout occurs.
+                The timeout duration comes from the <see cref="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Timeout" /> property.
+            </summary>
+      <returns>
+        <c>true</c> if the transaction completed successfully, <c>false</c> otherwise.</returns>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.WaitForCompletionOrTimeoutAsync(System.Threading.CancellationToken)">
+      <summary>
+                Returns a task that completes when the transaction completes, fails or times out.
+            </summary>
+      <param name="cancellation">
+                A cancellation token that can cancel the task. Note that this does not cancel
+                the transaction (these cannot be cancelled once committed).
+            </param>
+      <returns>Task&lt;System.Boolean&gt;.</returns>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.ObserveResponse(System.IObservable{System.Char})">
+      <summary>
+                Observes the character sequence from the communications channel
+                until a satisfactory response has been received. This default implementation
+                should be overridden in derived types toi produce the desired results.
+            </summary>
+      <param name="source">The source.</param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.OnNext(System.String)">
+      <summary>
+                Called when the response sequence produces a value.
+                This sets the transaction's Response string but the sequence
+                must complete before the transaction is considered successful.
+            </summary>
+      <param name="value">The value produced.</param>
+      <remarks>
+                If you override the OnNext method in your own derived class, then you should call <c>base.OnNext</c> from your
+                overridden method to set the <see cref="P:TA.Ascom.ReactiveCommunications.DeviceTransaction.Response" /> property correctly.
+            </remarks>
+      <requires csharp="value != null" vb="value &lt;&gt; Nothing">value != null</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.OnError(System.Exception)">
+      <summary>
+                Called when the response sequence produces an error.
+                This indicates a failed transaction.
+            </summary>
+      <param name="except">The exception.</param>
+      <remarks>
+                Overriding <c>OnError</c> is discouraged but it you do, you should call <c>base.OnError</c> before
+                returning from your override method, to ensure correct thread synchronization and that the internal state remains
+                consistent.
+            </remarks>
+      <requires csharp="except != null" vb="except &lt;&gt; Nothing">except != null</requires>
+      <ensures csharp="this.Response != null" vb="Me.Response &lt;&gt; Nothing">this.Response != null</ensures>
+      <ensures csharp="this.ErrorMessage != null" vb="Me.ErrorMessage &lt;&gt; Nothing">this.ErrorMessage != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.OnCompleted">
+      <summary>
+                Called when the response sequence completes. This indicates a successful transaction.
+            </summary>
+      <remarks>
+                This method is normally overridden in a derived type, where you can perform additional parsing and type
+                conversion of any received response. The recommended pattern is for the derived type to add a <c>Value</c>
+                property of an appropriate type, then in the OnCompleted method, set the <c>Value</c> property before
+                calling <c>base.OnCompleted</c>. You MUST call <c>base.OnCompleted</c> before returning from your override
+                method, to ensure correct thread synchronization and internal state consistency.
+            </remarks>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceTransaction.ToString">
+      <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+      <pure />
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Object.ToString" inheritedFromTypeName="Object" csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Diagnostics.AsciiExtensions.ExpandAscii(System.String)">
+      <summary>
+                Utility function. Expands non-printable ASCII characters into mnemonic
+                human-readable form.
+            </summary>
+      <returns>
+                Returns a new string with non-printing characters replaced by human-readable
+                mnemonics.
+            </returns>
+      <requires csharp="text != null" vb="text &lt;&gt; Nothing">text != null</requires>
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Diagnostics.AsciiSymbols">
+      <summary>
+                Enumeration constants for ASCII control codes.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Diagnostics.ObservableDiagnosticExtensions">
+      <summary>
+                Provides debug and trace support for observables.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Diagnostics.ObservableDiagnosticExtensions.Trace``1(System.IObservable{``0},System.String)">
+      <summary>
+                Traces the specified observable.
+            </summary>
+      <typeparam name="TSource">The type of the observable sequence.</typeparam>
+      <param name="source">The source sequence to be traced.</param>
+      <param name="name">The name emitted in trace output for this source.</param>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.ICommunicationChannel">
+      <summary>
+                Interface ICommunicationsChannel
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ICommunicationChannel.Open">
+      <summary>
+                Creates any underlying communication objects and opens the channel ready for transmitting.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ICommunicationChannel.Close">
+      <summary>
+                Closes the channel and destroys any underlying communication objects.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ICommunicationChannel.Send(System.String)">
+      <summary>
+                Sends the specified data and returns immediately without waiting for a reply.
+            </summary>
+      <param name="txData">The data to be transmitted.</param>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.ICommunicationChannel.ObservableReceivedCharacters">
+      <summary>
+                An observable sequence of the characters received from the serial port.
+            </summary>
+      <value>The receive stream.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.ICommunicationChannel.IsOpen">
+      <summary>
+                Gets a value indicating whether this instance is open.
+            </summary>
+      <value>
+        <c>true</c> if this instance is open; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.ICommunicationChannel.Endpoint">
+      <summary>
+                Gets the endpoint that is associated with the channel.
+            </summary>
+      <value>The endpoint.</value>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.ISerialPort">
+      <summary>
+                Mirrors the <see cref="T:System.IO.Ports.SerialPort" /> class and serves as a vehicle for dependency injection,
+                allowing the serial port to be faked.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.ITransactionProcessor">
+      <summary>
+                Defines the interface of a transaction processing service.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ITransactionProcessor.CommitTransaction(TA.Ascom.ReactiveCommunications.DeviceTransaction)">
+      <summary>
+                Commits a transaction. That is, submits it for execution with no way to cancel.
+                From this point, the transaction will either succeed in which case it will contain a valid response,
+                or it will fail, in which case the response will be <see cref="P:TA.Ascom.ReactiveCommunications.Maybe`1.Empty" />.
+            </summary>
+      <param name="transaction">The transaction to be processed.</param>
+      <requires csharp="transaction != null" vb="transaction &lt;&gt; Nothing">transaction != null</requires>
+      <requires csharp="!string.IsNullOrEmpty(transaction.Command)" vb="Not System.String.IsNullOrEmpty(transaction.Command)">!string.IsNullOrEmpty(transaction.Command)</requires>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Maybe`1">
+      <summary>
+                Represents an object that may or may not have a value (strictly, a collection of zero or one elements). Use
+                LINQ expression <c>maybe.Any()</c> to determine if there is a value. Use LINQ expression
+                <c>maybe.Single()</c> to retrieve the value.
+            </summary>
+      <typeparam name="T">The type of the item in the collection.</typeparam>
+      <remarks>
+                This type almost completely eliminates any need to return <c>null</c> or deal with possibly null references,
+                which makes code cleaner and more clearly expresses the intent of 'no value' versus 'error'.  The value of a
+                Maybe cannot be <c>null</c>, because <c>null</c> really means 'no value' and that is better expressed by
+                using <see cref="P:TA.Ascom.ReactiveCommunications.Maybe`1.Empty" />.
+            </remarks>
+      <invariant>values != null</invariant>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Maybe`1.#ctor">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.Maybe`1" /> with no value.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Maybe`1.#ctor(`0)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.Maybe`1" /> with a value.
+            </summary>
+      <param name="value">The value.</param>
+      <requires csharp="(object)value != null" vb="((Object)value) &lt;&gt; Nothing">(object)value != null</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.Maybe`1.Empty">
+      <summary>
+                Gets an instance that does not contain a value.
+            </summary>
+      <value>The empty instance.</value>
+      <getter>
+        <ensures csharp="Contract.Result&lt;TA.Ascom.ReactiveCommunications.Maybe&lt;T&gt;&gt;() != null" vb="Contract.Result(Of TA.Ascom.ReactiveCommunications.Maybe(Of T))() &lt;&gt; Nothing">result != null</ensures>
+      </getter>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Maybe`1.GetEnumerator">
+      <summary>
+                Returns an enumerator that iterates through the collection.
+            </summary>
+      <returns>
+                A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the
+                collection.
+            </returns>
+      <ensures csharp="Contract.Result&lt;System.Collections.Generic.IEnumerator&lt;T&gt;&gt;() != null" vb="Contract.Result(Of System.Collections.Generic.IEnumerator(Of T))() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Collections.Generic.IEnumerable`1.GetEnumerator" inheritedFromTypeName="IEnumerable" csharp="Contract.Result&lt;decimal&gt;() != null" vb="Contract.Result(Of System.Collections.Generic.IEnumerator(Of Decimal))() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Collections.Generic.IEnumerable`1.GetEnumerator" inheritedFromTypeName="IEnumerable" csharp="Contract.Result&lt;decimal&gt;().get_Model == this.get_Model" vb="Contract.Result(Of System.Collections.Generic.IEnumerator(Of Decimal))().get_Model = Me.get_Model">result.get_Model == this.get_Model</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Maybe`1.ToString">
+      <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+      <pure />
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Object.ToString" inheritedFromTypeName="Object" csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor">
+      <summary>
+                A transaction processor that raises a .NET event as each transaction becomes available. The transaction is
+                provided as part of the event arguments.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.CommitTransaction(TA.Ascom.ReactiveCommunications.DeviceTransaction)">
+      <summary>
+                Commits a transaction. That is, submits it for execution with no way to cancel. From this point, the
+                transaction will either succeed in which case it will contain a valid response, (
+                <c>Response.Any() == true</c>) or it will fail, in which case the response will not have a value (
+                <see cref="P:TA.Ascom.ReactiveCommunications.Maybe`1.Empty" /> or <c>Response.Any() == false</c>).
+            </summary>
+      <param name="transaction">The transaction to be processed.</param>
+      <requires inheritedFrom="M:TA.Ascom.ReactiveCommunications.ITransactionProcessor.CommitTransaction(TA.Ascom.ReactiveCommunications.DeviceTransaction)" inheritedFromTypeName="ITransactionProcessor" csharp="transaction != null" vb="transaction &lt;&gt; Nothing">transaction != null</requires>
+      <requires inheritedFrom="M:TA.Ascom.ReactiveCommunications.ITransactionProcessor.CommitTransaction(TA.Ascom.ReactiveCommunications.DeviceTransaction)" inheritedFromTypeName="ITransactionProcessor" csharp="!string.IsNullOrEmpty(transaction.Command)" vb="Not System.String.IsNullOrEmpty(transaction.Command)">!string.IsNullOrEmpty(transaction.Command)</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.SubscribeTransactionObserver(TA.Ascom.ReactiveCommunications.TransactionObserver,System.Nullable{System.TimeSpan})">
+      <summary>
+                Connects this transaction processor to a transaction observer, which will orchestrate the transaction and
+                arrange for it to receive appropriate responses from a communications channel.
+            </summary>
+      <remarks>
+        <para>
+                    The transaction sequence is observed on a free-threaded worker thread determined by Rx's default scheduler.
+                    This is done to avoid any potential threading and reentrancy issues when running in a single threaded
+                    apartment (STA thread) such as a Windows Forms GUI thread. This has been observed to cause sequencing issues
+                    and in an STA thread, constructs such as <c>lock ()</c> and <c>WaitHandle.WaitOne()</c> are useless.
+                </para>
+        <para>
+                    If different threading semantics are required, then you can inherit from this class and
+                    <see langword="override" /> the <see cref="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.SubscribeTransactionObserver(TA.Ascom.ReactiveCommunications.TransactionObserver,System.Nullable{System.TimeSpan})" />
+                    method.
+                </para>
+      </remarks>
+      <param name="observer">The transaction observer.</param>
+      <param name="rateLimit">The minimum amount of time that must elapse between transactions.</param>
+      <requires csharp="observer != null" vb="observer &lt;&gt; Nothing">observer != null</requires>
+    </member>
+    <member name="E:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.TransactionAvailable">
+      <summary>
+                Occurs when a new transaction becomes available. The transaction is contained in the event arguments.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.OnTransactionAvailable(TA.Ascom.ReactiveCommunications.DeviceTransaction)">
+      <summary>
+                Raises the <see cref="E:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.TransactionAvailable" /> event. The new transaction must be supplied as an argument.
+            </summary>
+      <param name="transaction">The transaction that has become available.</param>
+      <exception cref="T:System.Exception">A delegate callback throws an exception.</exception>
+      <requires csharp="transaction != null" vb="transaction &lt;&gt; Nothing">transaction != null</requires>
+      <requires csharp="!string.IsNullOrEmpty(transaction.Command)" vb="Not System.String.IsNullOrEmpty(transaction.Command)">!string.IsNullOrEmpty(transaction.Command)</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.Dispose">
+      <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+                Implements <see cref="T:System.IDisposable" />.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.Dispose(System.Boolean)">
+      <summary>
+                Releases unmanaged and - optionally - managed resources.
+            </summary>
+      <param name="disposing">
+        <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+                unmanaged resources.
+            </param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor.Finalize">
+      <summary>
+                Finalizes an instance of the <see cref="T:TA.Ascom.ReactiveCommunications.ReactiveTransactionProcessor" /> class.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel">
+      <summary>
+                Class SerialCommunicationChannel. Implements sending and receiving to a serial port device.
+            </summary>
+      <invariant>log != null</invariant>
+      <invariant>endpoint != null</invariant>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.#ctor(TA.Ascom.ReactiveCommunications.DeviceEndpoint,TA.Ascom.ReactiveCommunications.ISerialPort)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel" /> class.
+            </summary>
+      <param name="endpoint">The device endpoint.</param>
+      <param name="port">The port.</param>
+      <exception cref="T:System.ArgumentException">Expected a SerialDeviceEndpoint</exception>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Open">
+      <summary>
+                Configures the serial port and opens the channel ready for transmitting.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Close">
+      <summary>
+                Disconnects the serial port and closes the channel.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Send(System.String)">
+      <summary>
+                Sends the specified data and returns immediately without waiting for a reply.
+            </summary>
+      <param name="txData">The data to be transmitted.</param>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.ObservableReceivedCharacters">
+      <summary>
+                An observable sequence of the characters received from the serial port.
+            </summary>
+      <value>The receive sequence.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.IsOpen">
+      <summary>
+                Gets a value indicating whether this instance is open.
+            </summary>
+      <value>
+        <c>true</c> if this instance is open; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Endpoint">
+      <summary>
+                Gets the endpoint that is associated with the channel.
+            </summary>
+      <value>The endpoint.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.ToString">
+      <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Object.ToString" inheritedFromTypeName="Object" csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Dispose">
+      <summary>
+                Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+                Implements <see cref="T:System.IDisposable" />.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Dispose(System.Boolean)">
+      <summary>
+                Releases unmanaged and - optionally - managed resources.
+            </summary>
+      <param name="disposing">
+        <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+                unmanaged resources.
+            </param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel.Finalize">
+      <summary>
+                Finalizes an instance of the <see cref="T:TA.Ascom.ReactiveCommunications.SerialCommunicationChannel" /> class.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint">
+      <summary>
+                Class SerialDeviceEndpoint. Represents a serial port endpoint with a comm port name,
+                data (baud) rate, parity type, number of data bits and number of stop bits.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.#ctor(System.String,System.Int32,System.IO.Ports.Parity,System.Int32,System.IO.Ports.StopBits,System.Boolean,System.Boolean)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint" /> class.
+            </summary>
+      <param name="portName">Name of the port, COMx where x is an integer.</param>
+      <param name="baudRate">The baud rate. Optional; default is 9600.</param>
+      <param name="parity">The parity bit type. Optional; default is <see cref="F:System.IO.Ports.Parity.None" />.</param>
+      <param name="dataBits">The number of data bits. Optional; default is 8.</param>
+      <param name="stopBits">The number stop bits. Optional; default is 1.</param>
+      <param name="dtrEnable">
+                Indicates whether the DTR signal should be asserted or negated. Optional; default is
+                <see langword="true" />.
+            </param>
+      <param name="rtsEnable">
+                Indicates whether the RTS signal should be asserted or negated. Optional; default is
+                <see langword="true" /></param>
+      <requires csharp="!string.IsNullOrWhiteSpace(portName)" vb="Not System.String.IsNullOrWhiteSpace(portName)">!string.IsNullOrWhiteSpace(portName)</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.PortName">
+      <summary>
+                Gets the name of the port being used.
+                The port name is typically in the form <c>COMx</c> where x is an integer.
+                However, Windows will also accept a UNC path format of <c>\\.\COMx</c></summary>
+      <value>The name of the port.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.BaudRate">
+      <summary>
+                Gets the configured baud rate.
+                For serial ports, 1 Baud equals 1 bit per second.
+            </summary>
+      <value>The baud rate.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.Parity">
+      <summary>
+                Gets the parity algorithm.
+            </summary>
+      <value>The parity.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.DataBits">
+      <summary>
+                Gets the configured number of data bits.
+            </summary>
+      <value>The data bits.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.StopBits">
+      <summary>
+                Gets the stop bits configuration.
+            </summary>
+      <value>The stop bits (enumerated value).</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.RtsEnable">
+      <summary>
+                Gets a value indicating whether the RTS (Request To Send) signal is enabled.
+            </summary>
+      <value>
+        <c>true</c> if RTS is enabled; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.DtrEnable">
+      <summary>
+                Gets a value indicating whether DTR (Data Terminal Ready) signal is enabled.
+            </summary>
+      <value>
+        <c>true</c> if DTR is enabled; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialDeviceEndpoint.ToString">
+      <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Object.ToString" inheritedFromTypeName="Object" csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.ObservableExtensions">
+      <summary>
+                Provides extension methods for capturing and transforming observable sequences of characters received from a serial
+                port.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.ObservableDataReceivedEvents(TA.Ascom.ReactiveCommunications.ISerialPort)">
+      <summary>
+                Captures the <see cref="E:System.IO.Ports.SerialPort.DataReceived" /> event of a serial port and returns an
+                observable sequence of the events.
+            </summary>
+      <param name="port">The serial port that will act as the event source.</param>
+      <returns>
+        <see cref="T:System.IObservable`1" /> - an observable sequence of events.</returns>
+      <requires csharp="new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass1_0(){
+    port = port, 
+}.port != null" vb="(() =&gt; {
+    TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass1_0 local_0_prime = New TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass1_0();
+    (local_0_prime.port = port)
+    return local_0_prime; })().port &lt;&gt; Nothing">new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass1_0(){
+    port = port, 
+}.port != null</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;System.Reactive.EventPattern&lt;System.IO.Ports.SerialDataReceivedEventArgs&gt;&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of System.Reactive.EventPattern(Of System.IO.Ports.SerialDataReceivedEventArgs)))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.ToObservableCharacterSequence(TA.Ascom.ReactiveCommunications.ISerialPort)">
+      <summary>
+                Creates an observable sequence of characters from the specified serial port.
+            </summary>
+      <param name="port">The port that will be the data source.</param>
+      <returns>
+        <see cref="T:System.IObservable`1" /> - an observable sequence of characters.</returns>
+      <remarks>
+                This code suggested by Bart De Smet [MVP] at
+                https://social.msdn.microsoft.com/Forums/en-US/5a12822d-92a6-4ff3-9a37-9bcce83dae0c/how-to-implement-serialport-parser-in-rx?forum=rx
+                Bart's code correctly handles OnCompleted and OnError cases.
+            </remarks>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.UnsubscribeAction(TA.Ascom.ReactiveCommunications.ISerialPort,System.IObserver{System.Char})">
+      <summary>
+                Returns an Action to be called when the observer unsubscribes.
+            </summary>
+      <param name="port">The port.</param>
+      <param name="observer">The observer.</param>
+      <returns>Action.</returns>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.ReactiveErrorReceivedEventHandler(System.IObserver{System.Char})">
+      <summary>
+                Gets an event handler (delegate) that handles the SerialErrorReceived event from a serial port
+                and passes the error on to an observer by calling the OnError method on the observer.
+            </summary>
+      <param name="observer">The observer.</param>
+      <returns>delegate of type <see cref="T:System.IO.Ports.SerialErrorReceivedEventHandler" />.</returns>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.ReactiveDataReceivedEventHandler(TA.Ascom.ReactiveCommunications.ISerialPort,System.IObserver{System.Char})">
+      <summary>
+                Gets an event handler (delegate) that handles the SerialDataReceived event from a serial port. if the
+                event type is <see cref="F:System.IO.Ports.SerialData.Chars" /> then the received characters are read from the serial port
+                buffer and passed on to a subscribed observer by calling the OnNext method. OnNext is called once for
+                each received character. If the event type is <see cref="F:System.IO.Ports.SerialData.Eof" /> then the observer's
+                OnCompleted method is called.
+            </summary>
+      <param name="port">The data source.</param>
+      <param name="observer">The subscribed observer.</param>
+      <returns>SerialDataReceivedEventHandler.</returns>
+      <remarks>
+                The documentation for <see cref="T:System.IO.Ports.SerialPort" /> states that: "Note that this method can leave
+                trailing lead bytes in the internal buffer, which makes the BytesToRead value greater than zero". In that
+                situation, we would enter an infinite loop trying to read from en empty stream, which would only terminate
+                when more data arrives at the serial port and eventually gets flushed into the input stream. Therefore, we
+                use <c>Thread.Yield()</c> within the receive loop to give other threads (including the serial port) a chance
+                to run.
+            </remarks>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.TerminatedStrings(System.IObservable{System.Char},System.Char)">
+      <summary>
+                Produces a sequence of strings delimited by the specified <paramref name="terminator" /> character.
+            </summary>
+      <param name="source">The source character sequence.</param>
+      <param name="terminator">The terminator that will delimit the strings.</param>
+      <returns>
+        <see cref="T:System.IObservable`1" /> - a sequence of strings.</returns>
+      <requires csharp="(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0();
+    }
+    return source != null; })()" vb="(() =&gt; {
+    TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0 local_0 = New TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0();
+    return source &lt;&gt; Nothing; })()">(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass6_0();
+    }
+    return source != null; })()</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;string&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of String))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.TimeDelimitedString(System.IObservable{System.Char},System.TimeSpan)">
+      <summary>
+                Converts a sequence of characters into a sequence of time-delimited strings.
+            </summary>
+      <param name="source">The source sequence of characters.</param>
+      <param name="quietTime">
+                The period of time that the receive sequence must be quiescent before the next string will be
+                emitted.
+            </param>
+      <returns>
+        <see cref="T:System.IObservable`1" /> - a sequence of time-delimited strings.</returns>
+      <requires csharp="(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0();
+        local_0.quietTime = quietTime;
+    }
+    return source != null; })()" vb="(() =&gt; {
+    TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0 local_0 = New TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0();
+    local_0.quietTime = quietTime
+    return source &lt;&gt; Nothing; })()">(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass7_0();
+        local_0.quietTime = quietTime;
+    }
+    return source != null; })()</requires>
+      <requires csharp="local_0.quietTime.TotalMilliseconds &gt; 0.0" vb="local_0.quietTime.TotalMilliseconds &gt; 0">local_0.quietTime.TotalMilliseconds &gt; 0.0</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;string&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of String))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.DelimitedMessageStrings(System.IObservable{System.Char},System.Char,System.Char)">
+      <summary>
+                Parses a sequence of characters into a sequence of strings, based on delimiters.
+                The delimiters are included in the strings. Characters that do not occur between delimiters are discarded from the
+                sequence.
+            </summary>
+      <param name="source">The source sequence of characters.</param>
+      <param name="initiator">The initiator character that triggers the start of a new string.</param>
+      <param name="terminator">The terminator character that marks the end of a string.</param>
+      <returns>
+        <see cref="T:System.IObservable`1" />, an observable sequence of strings each delimited by an initiator character
+                and a terminator character.
+            </returns>
+      <requires csharp="(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0();
+        local_0.initiator = initiator;
+        local_0.terminator = terminator;
+    }
+    return source != null; })()" vb="(() =&gt; {
+    TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0 local_0 = New TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0();
+    local_0.initiator = initiator
+    local_0.terminator = terminator
+    return source &lt;&gt; Nothing; })()">(() =&gt; {
+    {
+        TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0 local_0 = new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass8_0();
+        local_0.initiator = initiator;
+        local_0.terminator = terminator;
+    }
+    return source != null; })()</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;string&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of String))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.BufferByDelimiters(System.IObservable{System.Char},System.Char,System.Char)">
+      <summary>
+                Buffers a sequence of characters based on a pair of delimiters.
+            </summary>
+      <param name="source">The source sequence.</param>
+      <param name="initiator">The initiator character. Optional; default is ':'."</param>
+      <param name="terminator">The terminator character. Optional; default is '#'."</param>
+      <returns>
+        <see cref="T:System.IObservable`1" /> - an observable sequence of buffers.</returns>
+      <requires csharp="new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass9_0(){
+    initiator = initiator, 
+    source = source, 
+    terminator = terminator, 
+}.source != null" vb="(() =&gt; {
+    TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass9_0 local_0_prime = New TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass9_0();
+    (local_0_prime.initiator = initiator)
+    (local_0_prime.source = source)
+    (local_0_prime.terminator = terminator)
+    return local_0_prime; })().source &lt;&gt; Nothing">new TA.Ascom.ReactiveCommunications.ObservableExtensions.&lt;&gt;c__DisplayClass9_0(){
+    initiator = initiator, 
+    source = source, 
+    terminator = terminator, 
+}.source != null</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;System.Collections.Generic.IList&lt;char&gt;&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of System.Collections.Generic.IList(Of Char)))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.TerminatedBoolean(System.IObservable{System.Char},System.Char)">
+      <summary>
+                Selects sequences of "0#" and "1#" and produces "0" or "1".
+            </summary>
+      <param name="source">The source.</param>
+      <param name="terminator">The terminator. Optional; default is '#'</param>
+      <returns>
+        <see cref="T:System.IObservable`1" />.</returns>
+      <requires csharp="source != null" vb="source &lt;&gt; Nothing">source != null</requires>
+      <ensures csharp="Contract.Result&lt;System.IObservable&lt;string&gt;&gt;() != null" vb="Contract.Result(Of System.IObservable(Of String))() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.ObservableExtensions.RateLimited``1(System.IObservable{``0},System.TimeSpan)">
+      <summary>
+                Rate-limits a sequence so that it cannot produce elements faster that the specified interval.
+                No data is discarded. When elements arrive faster than the specified rate, they are buffered
+                and emitted one at a time in accordance with the configured rate. This may be useful where
+                devices have a limitation on the number of transactions they can process per second.
+            </summary>
+      <typeparam name="T">The type of the observable sequence.</typeparam>
+      <param name="source">The source sequence.</param>
+      <param name="interval">The minimum interval between emitted elements.</param>
+      <returns>A rate-limited IObservable{T}.</returns>
+      <remarks>Credit to <c>yamen</c> via http://stackoverflow.com/a/11285920/98516 for this solution.</remarks>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.SerialPort">
+      <summary>
+                This class wraps the <see cref="T:System.IO.Ports.SerialPort" /> class and provides additional
+                behaviours such as diagnostics. It also acts as a vehicle for implementing
+                the <see cref="T:TA.Ascom.ReactiveCommunications.ISerialPort" /> interface, to assist with dependency injection and unit testing.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.SerialPort.#ctor">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.SerialPort" /> class and sets the
+                <see cref="P:TA.Ascom.ReactiveCommunications.SerialPort.NewLine" /> property to ASCII Carriage Return.
+            </summary>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.SerialPort.NewLine">
+      <summary>
+                Gets or sets the line terminator string.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint">
+      <summary>
+                Represents a network endpoint, with a hostaddress
+                and port number.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint.#ctor(System.String,System.Int32)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint" /> class.
+            </summary>
+      <param name="host">The network host name or IPv4 address.</param>
+      <param name="port">The TCP or UDP port number.</param>
+      <requires csharp="!string.IsNullOrWhiteSpace(host)" vb="Not System.String.IsNullOrWhiteSpace(host)">!string.IsNullOrWhiteSpace(host)</requires>
+      <requires csharp="port &gt;= 0 &amp;&amp; !(port &gt; 65535)" vb="port &gt;= 0 AndAlso Not port &gt; 65535">port &gt;= 0 &amp;&amp; !(port &gt; 65535)</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint.Port">
+      <summary>
+                Gets the TCP/UDP port number of the endpoint.
+            </summary>
+      <value>The port number.</value>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint.Host">
+      <summary>
+                Gets the network host name or IPv4 address of the endpoint.
+            </summary>
+      <value>The host.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.NetworkDeviceEndpoint.ToString">
+      <summary>
+                Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>A <see cref="T:System.String" /> that represents this instance.</returns>
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Object.ToString" inheritedFromTypeName="Object" csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.TransactionAvailableEventArgs">
+      <summary>
+            Event arguments used by the ReactiveTransactionProcessor.
+            </summary>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.TransactionAvailableEventArgs.Transaction">
+      <summary>
+            Gets or sets the transaction.
+            </summary>
+      <value>The transaction.</value>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.TransactionObserver">
+      <summary>
+                Observes the incoming transaction pipeline, which ultimately derives from the client application and commits
+                each transaction in sequence. Transactions are processed synchronously and are guaranteed to be atomic, that
+                is, zero or one transactions can be 'in progress' at any given time. This may involve blocking the thread
+                while the transaction completes.
+            </summary>
+      <invariant>log != null</invariant>
+      <invariant>channel != null</invariant>
+      <invariant>observableReceiveSequence != null</invariant>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.TransactionObserver.#ctor(TA.Ascom.ReactiveCommunications.ICommunicationChannel)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.TransactionObserver" /> class and associates it with a communications
+                channel.
+            </summary>
+      <param name="channel">The channel.</param>
+      <requires csharp="channel != null" vb="channel &lt;&gt; Nothing">channel != null</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.TransactionObserver.ReceiverReady">
+      <summary>
+                Gets a value indicating whether the receiver is ready.
+            </summary>
+      <value>
+        <c>true</c> if the receiver is ready; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.TransactionObserver.OnNext(TA.Ascom.ReactiveCommunications.DeviceTransaction)">
+      <summary>
+                Called when the next transaction is available.
+            </summary>
+      <param name="transaction">The transaction.</param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.TransactionObserver.OnError(System.Exception)">
+      <summary>
+                Notifies the observer that the provider has experienced an error condition.
+            </summary>
+      <param name="error">An object that provides additional information about the error.</param>
+      <requires inheritedFrom="M:System.IObserver`1.OnError(System.Exception)" inheritedFromTypeName="IObserver" csharp="error != null" vb="error &lt;&gt; Nothing">error != null</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.TransactionObserver.OnCompleted">
+      <summary>
+                Notifies the observer that the provider has finished sending push-based notifications.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction">
+      <summary>
+                Receives a response consisting of <c>0#</c> or <c>1#</c> and interprets it as a boolean.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction.#ctor(System.String)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.DeviceTransaction" /> class.
+            </summary>
+      <param name="command">The command string to send to the device.</param>
+      <requires csharp="!string.IsNullOrEmpty(command)" vb="Not System.String.IsNullOrEmpty(command)">!string.IsNullOrEmpty(command)</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction.ObserveResponse(System.IObservable{System.Char})">
+      <summary>
+                Observes the character sequence from the communications channel
+                until a satisfactory response has been received.
+            </summary>
+      <param name="source">The source sequence.</param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction.OnCompleted">
+      <summary>
+                Called when the response sequence completes. This indicates a successful transaction.
+            </summary>
+      <remarks>
+                If there has been a valid response (<c>Response.Any() == true</c>) then it is converted to a boolean and placed in
+                the <see cref="P:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction.Value" /> property.
+            </remarks>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.Transactions.BooleanTransaction.Value">
+      <summary>
+                Gets the final value of teh transaction's response, as a boolean.
+            </summary>
+      <value>
+        <c>true</c> if value; otherwise, <c>false</c>.</value>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Transactions.NoReplyTransaction">
+      <summary>
+                A transaction that doesn't wait for any reply and completes immediately.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.NoReplyTransaction.#ctor(System.String)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.DeviceTransaction" /> class.
+            </summary>
+      <param name="command">The command to be sent to the communications channel.</param>
+      <requires csharp="command != null" vb="command &lt;&gt; Nothing">command != null</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.NoReplyTransaction.ObserveResponse(System.IObservable{System.Char})">
+      <summary>
+                Ignores the source sequence and does not wait for any received data. Completes the transaction immediately.
+            </summary>
+      <param name="source">The source sequence of received characters (ignored).</param>
+      <ensures csharp="this.Response != null" vb="Me.Response &lt;&gt; Nothing">this.Response != null</ensures>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction">
+      <summary>
+                A transaction type that receives a terminated string of any length and uses the first character as the response
+                value.
+            </summary>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction.Value">
+      <summary>
+                Gets the response value of the completed transaction.
+            </summary>
+      <value>The value, a single character.</value>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction.#ctor(System.String,System.Char)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction" /> class.
+            </summary>
+      <param name="command">The command to be sent to the communications channel.</param>
+      <param name="terminator">The response terminator character. Optional; defaults to '#'.</param>
+      <requires csharp="!string.IsNullOrEmpty(command)" vb="Not System.String.IsNullOrEmpty(command)">!string.IsNullOrEmpty(command)</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction.OnCompleted">
+      <summary>
+                Called when the input sequence completes. Sets the <see cref="P:TA.Ascom.ReactiveCommunications.Transactions.TerminatedSingleCharacterTransaction.Value" /> property to the first character of the
+                response string.
+            </summary>
+    </member>
+    <member name="T:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction">
+      <summary>
+                A transaction that receives a string response terminated by a '#' (octothorpe) character and strips off any
+                initiator (:) and terminator (#).
+            </summary>
+      <invariant>Value != null</invariant>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction.#ctor(System.String,System.Char,System.Char)">
+      <summary>
+                Initializes a new instance of the <see cref="T:TA.Ascom.ReactiveCommunications.DeviceTransaction" /> class.
+            </summary>
+      <param name="command">The command to be sent to the communications channel.</param>
+      <param name="initiator">The response initiator. Optional; defaults to ':'. Not used, but is stripped from
+            the start of the response (if present).</param>
+      <param name="terminator">The terminator character. Optional; defaults to '#'.</param>
+      <requires csharp="!string.IsNullOrEmpty(command)" vb="Not System.String.IsNullOrEmpty(command)">!string.IsNullOrEmpty(command)</requires>
+    </member>
+    <member name="P:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction.Value">
+      <summary>
+                Gets the final response value.
+            </summary>
+      <value>The value as a string.</value>
+      <getter>
+        <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+      </getter>
+      <setter>
+        <requires csharp="value != null" vb="value &lt;&gt; Nothing">value != null</requires>
+      </setter>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction.ObserveResponse(System.IObservable{System.Char})">
+      <summary>
+                Observes the character sequence from the communications channel
+                until a satisfactory response has been received.
+            </summary>
+      <param name="source">The source sequence.</param>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction.OnCompleted">
+      <summary>
+                Called when the response sequence completes. This indicates a successful transaction. If a valid
+                response was received, then delimiters are stripped off and the unterminated string is copied into the
+                <see cref="P:TA.Ascom.ReactiveCommunications.Transactions.TerminatedStringTransaction.Value" /> property.
+            </summary>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Diagnostics.AsciiExtensions.ExpandAscii(System.Char)">
+      <ensures csharp="Contract.Result&lt;string&gt;() != null" vb="Contract.Result(Of String)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.Maybe`1.System#Collections#IEnumerable#GetEnumerator">
+      <ensures csharp="Contract.Result&lt;System.Collections.IEnumerator&gt;() != null" vb="Contract.Result(Of System.Collections.IEnumerator)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Collections.IEnumerable.GetEnumerator" inheritedFromTypeName="IEnumerable" csharp="Contract.Result&lt;decimal&gt;() != null" vb="Contract.Result(Of System.Collections.IEnumerator)() &lt;&gt; Nothing">result != null</ensures>
+      <ensures inheritedFrom="M:System.Collections.IEnumerable.GetEnumerator" inheritedFromTypeName="IEnumerable" csharp="Contract.Result&lt;decimal&gt;().get_Model == this.get_Model" vb="Contract.Result(Of System.Collections.IEnumerator)().get_Model = Me.get_Model">result.get_Model == this.get_Model</ensures>
+      <ensures inheritedFrom="M:System.Collections.IEnumerable.GetEnumerator" inheritedFromTypeName="IEnumerable" csharp="Contract.Result&lt;decimal&gt;().get_CurrentIndex == -1" vb="Contract.Result(Of System.Collections.IEnumerator)().get_CurrentIndex = -1">result.get_CurrentIndex == -1</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.TransactionObserver.CommitTransaction(TA.Ascom.ReactiveCommunications.DeviceTransaction)">
+      <requires csharp="transaction != null" vb="transaction &lt;&gt; Nothing">transaction != null</requires>
+      <requires csharp="!string.IsNullOrEmpty(transaction.Command)" vb="Not System.String.IsNullOrEmpty(transaction.Command)">!string.IsNullOrEmpty(transaction.Command)</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceEndpoint.CreateNetworkEndpoint(System.String,System.Text.RegularExpressions.Regex)">
+      <requires csharp="!string.IsNullOrWhiteSpace(connection)" vb="Not System.String.IsNullOrWhiteSpace(connection)">!string.IsNullOrWhiteSpace(connection)</requires>
+      <requires csharp="regex != null" vb="regex &lt;&gt; Nothing">regex != null</requires>
+      <ensures csharp="Contract.Result&lt;TA.Ascom.ReactiveCommunications.DeviceEndpoint&gt;() != null" vb="Contract.Result(Of TA.Ascom.ReactiveCommunications.DeviceEndpoint)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceEndpoint.CreateSerialEndpoint(System.String)">
+      <requires csharp="!string.IsNullOrWhiteSpace(connectionString)" vb="Not System.String.IsNullOrWhiteSpace(connectionString)">!string.IsNullOrWhiteSpace(connectionString)</requires>
+      <ensures csharp="Contract.Result&lt;TA.Ascom.ReactiveCommunications.DeviceEndpoint&gt;() != null" vb="Contract.Result(Of TA.Ascom.ReactiveCommunications.DeviceEndpoint)() &lt;&gt; Nothing">result != null</ensures>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceEndpoint.CaptureOrDefaultValueAs``1(System.Text.RegularExpressions.Match,System.String,``0)">
+      <requires csharp="matches != null" vb="matches &lt;&gt; Nothing">matches != null</requires>
+      <requires csharp="groupName != null" vb="groupName &lt;&gt; Nothing">groupName != null</requires>
+      <requires csharp="(object)defaultValue != null" vb="((Object)defaultValue) &lt;&gt; Nothing">(object)defaultValue != null</requires>
+    </member>
+    <member name="M:TA.Ascom.ReactiveCommunications.DeviceEndpoint.ConvertFromString``1(System.String)">
+      <requires csharp="!string.IsNullOrWhiteSpace(valueString)" vb="Not System.String.IsNullOrWhiteSpace(valueString)">!string.IsNullOrWhiteSpace(valueString)</requires>
+    </member>
+  </members>
+</doc>

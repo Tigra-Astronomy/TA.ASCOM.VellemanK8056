@@ -1,18 +1,21 @@
 ﻿// This file is part of the ASCOM.K8056.Switch project
 // 
-// Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
+// Copyright © 2016-2017 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: Switch.cs  Last modified: 2016-07-31@00:15 by Tim Long
+// File: Switch.cs  Last modified: 2017-03-07@23:39 by Tim Long
 
 using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using ASCOM.DeviceInterface;
 using ASCOM.K8056.Properties;
 using JetBrains.Annotations;
 using NLog;
+using TA.VellemanK8056.DeviceInterface;
+using TA.VellemanK8056.Server;
 #if DEBUG_IN_EXTERNAL_APP
 using System.Windows.Forms;
 
@@ -25,6 +28,7 @@ namespace ASCOM.K8056
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
     [UsedImplicitly]
+    [ServedClassName(DeviceName)]
     public class Switch : ISwitchV2, IDisposable
         {
         internal const string DeviceName = "Velleman K8056";
@@ -37,30 +41,19 @@ namespace ASCOM.K8056
 #if DEBUG_IN_EXTERNAL_APP
             MessageBox.Show("Attach debugger now");
 #endif
-            HandleAssemblyResolveEvents();
-            device = CompositionRoot.GetDeviceLayer();
+            //HandleAssemblyResolveEvents();
+            //device = CompositionRoot.GetDeviceLayer();
+            clientId = SharedResources.ConnectionManager.RegisterClient(DeviceId);
             }
 
-        public void SetupDialog()
-            {
-            var dialog = new SetupDialog();
-            var result = dialog.ShowDialog();
-            switch (result)
-                {
-                    case DialogResult.OK:
-                        Settings.Default.Save();
-                        break;
-                    default:
-                        Settings.Default.Reload();
-                        break;
-                }
-            dialog.Dispose();
-            }
+        internal bool IsOnline => device?.IsOnline ?? false;
 
         public string Action(string ActionName, string ActionParameters)
             {
             throw new System.NotImplementedException();
             }
+
+        public bool CanWrite(short id) => true;
 
         public void CommandBlind(string Command, bool Raw = false)
             {
@@ -77,64 +70,13 @@ namespace ASCOM.K8056
             throw new System.NotImplementedException();
             }
 
-
-        public string GetSwitchName(short id) => Settings.Default.SwitchNames[id] ?? $"Relay {id}";
-
-        public void SetSwitchName(short id, string name)
-            {
-            Settings.Default.SwitchNames[id] = string.IsNullOrWhiteSpace(name) ? $"Relay {id}" : name;
-            Settings.Default.Save();
-            }
-
-        public string GetSwitchDescription(short id) => $"Relay {id}";
-
-        public bool CanWrite(short id) => true;
-
-        public bool GetSwitch(short id) => shadow[id];
-
-        public void SetSwitch(short id, bool state)
-            {
-            var relay = (ushort) id;
-            if (state) device.SetRelay(relay);
-            else device.ClearRelay(relay);
-            shadow = shadow.WithBitSetTo(id, state);
-            }
-
-        /// <summary>
-        ///     Returns the maximum value for this switch device.
-        /// </summary>
-        public double MaxSwitchValue(short id) => 1.0;
-
-        /// <summary>
-        ///     Returns the minimum value for this switch device.
-        /// </summary>
-        public double MinSwitchValue(short id) => 0.0;
-
-        /// <summary>
-        ///     Returns the step size that this device supports (the difference between successive values of the device).
-        /// </summary>
-        public double SwitchStep(short id) => 1.0;
-
-        /// <summary>
-        ///     Returns the value for switch device id as a double
-        /// </summary>
-        public double GetSwitchValue(short id) => shadow[id] ? 1.0 : 0.0;
-
-        /// <summary>
-        ///     Set the value for this device as a double.
-        /// </summary>
-        public void SetSwitchValue(short id, double value)
-            {
-            SetSwitch(id, value > 0.0);
-            }
-
         /// <summary>
         ///     Gets or sets the connection state.
         /// </summary>
         /// <value><c>true</c> if connected; otherwise, <c>false</c>.</value>
         public bool Connected
             {
-            get { return false; }
+            get { return IsOnline; }
             set
                 {
                 if (value)
@@ -163,22 +105,107 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
         /// </summary>
         public string DriverVersion => "0.0";
 
+        public bool GetSwitch(short id) => shadow[id];
+
+        public string GetSwitchDescription(short id) => $"Relay {id}";
+
+
+        public string GetSwitchName(short id) => Settings.Default.SwitchNames[id] ?? $"Relay {id}";
+
+        /// <summary>
+        ///     Returns the value for switch device id as a double
+        /// </summary>
+        public double GetSwitchValue(short id) => shadow[id] ? 1.0 : 0.0;
+
         /// <summary>
         ///     The ASCOM interface version number that this device supports.
         /// </summary>
         public short InterfaceVersion => 2;
+
+        public short MaxSwitch => 8;
+
+        /// <summary>
+        ///     Returns the maximum value for this switch device.
+        /// </summary>
+        public double MaxSwitchValue(short id) => 1.0;
+
+        /// <summary>
+        ///     Returns the minimum value for this switch device.
+        /// </summary>
+        public double MinSwitchValue(short id) => 0.0;
 
         /// <summary>
         ///     The short name of the driver, for display purposes
         /// </summary>
         public string Name => DeviceName;
 
+        public void SetSwitch(short id, bool state)
+            {
+            var relay = (ushort) id;
+            if (state) device.SetRelay(relay);
+            else device.ClearRelay(relay);
+            shadow = shadow.WithBitSetTo(id, state);
+            }
+
+        public void SetSwitchName(short id, string name)
+            {
+            Settings.Default.SwitchNames[id] = string.IsNullOrWhiteSpace(name) ? $"Relay {id}" : name;
+            Settings.Default.Save();
+            }
+
+        /// <summary>
+        ///     Set the value for this device as a double.
+        /// </summary>
+        public void SetSwitchValue(short id, double value)
+            {
+            SetSwitch(id, value > 0.0);
+            }
+
+        public void SetupDialog()
+            {
+            SharedResources.DoSetupDialog(clientId);
+            //var dialog = new SetupDialog();
+            //var result = dialog.ShowDialog();
+            //switch (result)
+            //    {
+            //        case DialogResult.OK:
+            //            Settings.Default.Save();
+            //            break;
+            //        default:
+            //            Settings.Default.Reload();
+            //            break;
+            //    }
+            //dialog.Dispose();
+            }
+
         /// <summary>
         ///     Returns the list of action names supported by this driver (currently none supported).
         /// </summary>
         public ArrayList SupportedActions => new ArrayList();
 
-        public short MaxSwitch => 8;
+        /// <summary>
+        ///     Returns the step size that this device supports (the difference between successive values of the device).
+        /// </summary>
+        public double SwitchStep(short id) => 1.0;
+
+        /// <summary>
+        ///     Connects to the device.
+        /// </summary>
+        /// <exception cref="ASCOM.DriverException">
+        ///     Failed to connect. Open apparently succeeded but then the device reported that
+        ///     is was offline.
+        /// </exception>
+        private void Connect()
+            {
+            device = SharedResources.ConnectionManager.GoOnline(clientId);
+            if (!device.IsOnline)
+                {
+                Log.Error("Connect failed - device reported offline");
+                throw new DriverException(
+                    "Failed to connect. Open apparently succeeded but then the device reported that is was offline.");
+                }
+            device.PerformOnConnectTasks();
+            }
 
         private void CreateSwitchNames()
             {
@@ -190,40 +217,21 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
             }
 
         /// <summary>
+        ///     Disconnects from the device.
+        /// </summary>
+        private void Disconnect()
+            {
+            SharedResources.ConnectionManager.GoOffline(clientId);
+            device = null; //[Sentinel]
+            }
+
+        /// <summary>
         ///     Installs a custom assembly resolver into the AppDomain so that the driver can find its
         ///     referenced assemblies.
         /// </summary>
         private void HandleAssemblyResolveEvents()
             {
             AppDomain.CurrentDomain.AssemblyResolve += AscomDriverAssemblyResolver.ResolveSupportAssemblies;
-            }
-
-        /// <summary>
-        ///     Disconnects from the device.
-        /// </summary>
-        private void Disconnect()
-            {
-            device.Close();
-            }
-
-        /// <summary>
-        ///     Connects to the device.
-        /// </summary>
-        /// <exception cref="ASCOM.DriverException">
-        ///     Failed to connect. Open apparently succeeded but then the device reported that
-        ///     is was offline.
-        /// </exception>
-        private void Connect()
-            {
-            if (!device.IsOnline) // Don't try to re-open a port that is already connected.
-                device.Open();
-            if (!device.IsOnline)
-                {
-                Log.Error("Connect failed - device reported offline");
-                throw new DriverException(
-                    "Failed to connect. Open apparently succeeded but then the device reported that is was offline.");
-                }
-            device.PerformOnConnectTasks();
             }
 
         #region IDisposable Pattern
@@ -246,9 +254,10 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
             }
 
         private bool disposed;
-        private readonly DeviceLayer device;
+        private DeviceController device;
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private Octet shadow = Octet.Zero;
+        private readonly Guid clientId;
         internal const string DeviceId = "ASCOM.K8056.Switch";
 
         protected virtual void Dispose(bool fromUserCode)
@@ -257,7 +266,7 @@ Licensed under the MIT License: http://tigra.mit-license.org/";
                 {
                 if (fromUserCode)
                     {
-                    // ToDo - Dispose managed resources (call Dispose() on any owned objects).
+                    SharedResources.ConnectionManager.UnregisterClient(clientId);
                     // Do not dispose of any objects that may be referenced elsewhere.
                     }
 

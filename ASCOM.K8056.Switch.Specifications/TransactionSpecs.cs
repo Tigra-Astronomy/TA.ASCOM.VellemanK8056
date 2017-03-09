@@ -1,12 +1,13 @@
 ﻿// This file is part of the ASCOM.K8056.Switch project
 // 
-// Copyright © 2016-2016 Tigra Astronomy, all rights reserved.
+// Copyright © 2016-2017 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: TransactionSpecs.cs  Last modified: 2016-07-31@00:36 by Tim Long
+// File: TransactionSpecs.cs  Last modified: 2017-03-06@19:17 by Tim Long
 
 using System.Collections.Generic;
 using Machine.Specifications;
+using TA.VellemanK8056.DeviceInterface;
 
 namespace ASCOM.K8056.Switch.Specifications
     {
