@@ -3,7 +3,7 @@
 // Copyright © 2016-2017 Tigra Astronomy, all rights reserved.
 // Licensed under the MIT license, see http://tigra.mit-license.org/
 // 
-// File: DeviceController.cs  Last modified: 2017-03-08@23:45 by Tim Long
+// File: DeviceController.cs  Last modified: 2017-03-09@02:59 by Tim Long
 
 using System;
 using NLog;
@@ -37,7 +37,8 @@ namespace TA.VellemanK8056.DeviceInterface
             var transaction = new ReleaseRelayTransaction(id);
             transactionProcessor.CommitTransaction(transaction);
             transaction.WaitForCompletionOrTimeout();
-            }
+            RaiseRelayStateChanged(id, false);
+        }
 
         /// <summary>
         ///     Close the connection to the AWR system. This should never fail.
@@ -95,11 +96,20 @@ namespace TA.VellemanK8056.DeviceInterface
             //ToDo: perform any tasks that must occur as soon as the communication channel is connected.
             }
 
+        protected void RaiseRelayStateChanged(int relay, bool newState)
+            {
+            var args = new RelayStateChangedEventArgs(relay, newState);
+            RelayStateChanged?.Invoke(this, args);
+            }
+
+        public event EventHandler<RelayStateChangedEventArgs> RelayStateChanged;
+
         public void SetRelay(ushort id)
             {
             var transaction = new EnergizeRelayTransaction(id);
             transactionProcessor.CommitTransaction(transaction);
             transaction.WaitForCompletionOrTimeout();
+            RaiseRelayStateChanged(id, true);
             }
         }
     }

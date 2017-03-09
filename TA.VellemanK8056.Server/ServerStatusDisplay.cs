@@ -6,11 +6,16 @@
 // File: ServerStatusDisplay.cs  Last modified: 2017-03-07@22:20 by Tim Long
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using ASCOM.Controls;
+using NLog;
+using TA.Ascom.ReactiveCommunications.Diagnostics;
+using TA.VellemanK8056.DeviceInterface;
 using TA.VellemanK8056.Server.Properties;
 
 namespace TA.VellemanK8056.Server
@@ -18,6 +23,9 @@ namespace TA.VellemanK8056.Server
     public partial class ServerStatusDisplay : Form
         {
         private IDisposable clientStatusSubscription;
+        private IDisposable relayStateChangedSubscription;
+        private List<Annunciator> annunciators;
+        private readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         public ServerStatusDisplay()
             {
@@ -57,6 +65,15 @@ namespace TA.VellemanK8056.Server
 
         private void frmMain_Load(object sender, EventArgs e)
             {
+            annunciators = new List<Annunciator>
+                {
+                Relay0Annunciator, Relay1Annunciator, Relay2Annunciator, Relay3Annunciator,
+                Relay4Annunciator, Relay5Annunciator, Relay6Annunciator, Relay7Annunciator
+                };
+            foreach (var annunciator in annunciators)
+                {
+                annunciator.Enabled = false;
+                }
             var clientStatusObservable = Observable.FromEventPattern<EventHandler<EventArgs>, EventArgs>(
                 handler => SharedResources.ConnectionManager.ClientStatusChanged += handler,
                 handler => SharedResources.ConnectionManager.ClientStatusChanged -= handler);
@@ -124,14 +141,28 @@ namespace TA.VellemanK8056.Server
             if (!SharedResources.ConnectionManager.MaybeControllerInstance.Any())
                 return;
             var controller = SharedResources.ConnectionManager.MaybeControllerInstance.Single();
-            /*
-             * The following pattern can be used to marshal property change events
-             * into the UI thread for safe control updates.
-             */
-            //rotatorPositionSubscription = controller
-            //    .GetObservableValueFor(m => m.RotatorPositionAngle)
-            //    .ObserveOn(SynchronizationContext.Current)
-            //    .Subscribe(angle => RotatorPosition.Text = $"{angle:000.00}°");
+            var relayStateChangeEvents = Observable
+                .FromEventPattern<EventHandler<RelayStateChangedEventArgs>, RelayStateChangedEventArgs>(
+                    handler => controller.RelayStateChanged += handler,
+                    handler => controller.RelayStateChanged -= handler);
+
+            relayStateChangedSubscription = relayStateChangeEvents
+                .Select(element => element.EventArgs)
+                .ObserveOn(SynchronizationContext.Current)
+                .Trace("Annunciators")
+                .Subscribe(UpdateRelayAnnunciator);
+            }
+
+        void UpdateRelayAnnunciator(RelayStateChangedEventArgs args)
+            {
+            log.Info($"Relay {args.RelayNumber} changed to {args.NewState}");
+            if (annunciators == null || annunciators.Count == 0)
+                {
+                log.Warn($"Relay {args.RelayNumber} changed to {args.NewState} but there are no annunciators to update");
+                return;
+                }
+            var annunciator = annunciators[args.RelayNumber];
+            annunciator.Enabled = args.NewState;
             }
 
         /// <summary>
@@ -139,9 +170,8 @@ namespace TA.VellemanK8056.Server
         /// </summary>
         private void UnsubscribePropertyChangeNotifications()
             {
-            /* Dispose any observable subscriptions like this:
-            rotatorPositionSubscription?.Dispose();
-            */
+            // Dispose any observable subscriptions
+            relayStateChangedSubscription?.Dispose();
             }
         }
     }

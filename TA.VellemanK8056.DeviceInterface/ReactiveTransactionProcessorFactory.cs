@@ -36,7 +36,7 @@ namespace TA.VellemanK8056.DeviceInterface
             Channel = CommunicationsStackBuilder.BuildChannel(Endpoint);
             observer = new TransactionObserver(Channel);
             processor = new ReactiveTransactionProcessor();
-            processor.SubscribeTransactionObserver(observer);
+            processor.SubscribeTransactionObserver(observer, TimeSpan.FromSeconds(2));
             Channel.Open();
             //Task.Delay(TimeSpan.FromSeconds(2)).Wait(); // Arduino needs 2 seconds to initialize
             Thread.Sleep(TimeSpan.FromSeconds(3));
