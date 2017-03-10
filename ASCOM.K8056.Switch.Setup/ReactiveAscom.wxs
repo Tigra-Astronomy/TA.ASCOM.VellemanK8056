@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Fragment>
+	<Fragment>
+    <DirectoryRef Id="INSTALLDIRECTORY"/>
     <ComponentGroup Id="cgReactiveAscom" >
-      <Component Id="cmpReactiveAscom" Directory="INSTALLFOLDER" Guid="*">
+      <Component Id="cmpReactiveAscom" 
+                 Directory="INSTALLDIRECTORY" 
+                 Guid="*"
+                 Win64="no" >
         <File Id="filReactiveAscom" 
-              Source="$(var.SwitchDriver.TargetDir)TA.Ascom.ReactiveCommunications.dll" 
+              Source="$(var.Server.TargetDir)TA.Ascom.ReactiveCommunications.dll" 
               KeyPath="yes" 
               Vital="yes" />
       </Component>
@@ -12,5 +16,5 @@
       <ComponentGroupRef Id="cgNLog"/>
       <ComponentGroupRef Id="cgPostSharp"/>
     </ComponentGroup>
-  </Fragment>
+	</Fragment>
 </Wix>

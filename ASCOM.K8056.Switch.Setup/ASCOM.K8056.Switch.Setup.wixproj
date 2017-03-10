@@ -20,24 +20,11 @@
     <DefineConstants>Debug</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="AscomCustomActions.wxs" />
-    <Compile Include="AscomDriver.wxs" />
-    <Compile Include="AscomProfileRegistration.wxs" />
-    <Compile Include="NLog.wxs" />
-    <Compile Include="NodaTime.wxs" />
-    <Compile Include="PostSharp.wxs" />
-    <Compile Include="Product.wxs" />
-    <Compile Include="ReactiveAscom.wxs" />
-    <Compile Include="ReactiveExtensions.wxs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Config.wxi" />
-    <Content Include="packages.config" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ASCOM.K8056.Switch\ASCOM.K8056.Switch.csproj">
       <Name>SwitchDriver</Name>
@@ -47,6 +34,48 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\TA.PostSharp.Aspects\TA.PostSharp.Aspects.csproj">
+      <Name>Aspects</Name>
+      <Project>{9cdcf319-dadc-41eb-b787-de3862017e95}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TA.VellemanK8056.DeviceInterface\TA.VellemanK8056.DeviceInterface.csproj">
+      <Name>DeviceLayer</Name>
+      <Project>{3015f05f-d747-4c3e-a0d4-ec2b3bd76c56}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TA.VellemanK8056.Server\TA.VellemanK8056.Server.csproj">
+      <Name>Server</Name>
+      <Project>{3689a2cb-94c5-4012-a5cf-7e7d1dd27143}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AscomCustomActions.wxs" />
+    <Compile Include="AscomSwitchDriver.wxs" />
+    <Compile Include="AscomLocalServer.wxs" />
+    <Compile Include="DeviceControlLayer.wxs" />
+    <Compile Include="Directories.wxs" />
+    <Compile Include="FeatureTree.wxs" />
+    <Compile Include="NLog.wxs" />
+    <Compile Include="PostSharp.wxs" />
+    <Compile Include="PostSharpAspects.wxs" />
+    <Compile Include="Product.wxs" />
+    <Compile Include="ReactiveASCOM.wxs" />
+    <Compile Include="ReactiveExtensions.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config.wxi" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

@@ -32,5 +32,20 @@
       <Custom Action="caUnregisterDrivers" After="RemoveFiles">Installed OR MaintenanceMode="Modify" OR UPGRADINGPRODUCTCODE</Custom>
       <Custom Action="caRegisterDrivers" Before="InstallFiles">NOT REMOVE OR Installed</Custom>
     </InstallExecuteSequence>
+    
+    <CustomTable Id="AscomDeviceProfiles" >
+      <Column Id="Id" Category="Identifier" PrimaryKey="yes" Type="int" Width="4"
+              Description="Unique row ID" />
+      <Column Id="DriverId" Category="Text" Type="string" PrimaryKey="no" />
+      <Column Id="ChooserName" Category="Text" Type="string" PrimaryKey="no"
+              Description="The name that will appear in the ASCOM Chooser" />
+
+      <Row>
+        <Data Column="Id" >1</Data>
+        <Data Column="DriverId" >$(var.SwitchDriverProgId)</Data>
+        <Data Column="ChooserName" >$(var.SwitchDriverDescription)</Data>
+      </Row>
+    </CustomTable>
+
   </Fragment>
 </Wix>
