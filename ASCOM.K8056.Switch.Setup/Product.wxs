@@ -2,9 +2,9 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?include $(sys.CURRENTDIR)\Config.wxi?>
   <Product Id="*" 
-           Name="GTD Integra 85 Focusing Rotator" 
+           Name="$(var.InstallName)" 
            Language="1033" Version="$(var.ProductVersion)" 
-           Manufacturer="Gemini Telescope Design" 
+           Manufacturer="$(var.Manufacturer)" 
            UpgradeCode="{54d84bce-4293-49ae-86b5-3e89ee9ab455}">
 		<Package InstallerVersion="400" Compressed="yes" InstallScope="perMachine" />
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
