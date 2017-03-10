@@ -13,6 +13,7 @@ using NLog;
 using PostSharp.Patterns.Model;
 using PostSharp.Patterns.Threading;
 using TA.Ascom.ReactiveCommunications;
+using TA.PostSharp.Aspects;
 using TA.VellemanK8056.DeviceInterface;
 
 namespace TA.VellemanK8056.Server
@@ -21,7 +22,7 @@ namespace TA.VellemanK8056.Server
     ///     Manages client (driver) connections to the shared device controller. Uses the Reader
     ///     Writer Lock pattern to ensure thread safety.
     /// </summary>
-    [ReaderWriterSynchronized]
+    [ReaderWriterSynchronized][NLogTraceWithArguments()]
     public class ClientConnectionManager
         {
         [Reference] private readonly ILogger log = LogManager.GetCurrentClassLogger();

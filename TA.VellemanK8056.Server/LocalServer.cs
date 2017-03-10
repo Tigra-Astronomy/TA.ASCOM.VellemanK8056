@@ -20,6 +20,7 @@ using ASCOM;
 using ASCOM.Utilities;
 using Microsoft.Win32;
 using NLog;
+using TA.PostSharp.Aspects;
 
 namespace TA.VellemanK8056.Server
     {
@@ -40,6 +41,7 @@ namespace TA.VellemanK8056.Server
         // ==================
         //
         [STAThread]
+        [NLogTraceWithArguments]
         private static void Main(string[] args)
             {
             // Manage unhandled exceptions
@@ -298,7 +300,7 @@ namespace TA.VellemanK8056.Server
         private static List<string> s_ComObjectAssys; // Dynamically loaded assemblies containing served COM objects
         private static List<Type> s_ComObjectTypes; // Served COM object types
         private static ArrayList s_ClassFactories; // Served COM object class factories
-        private static readonly string s_appId = "{7ee650cd-66d1-4ecd-9a4a-bfb7105e3115}"; // Our AppId
+        private static readonly string s_appId = "{11f49188-8a51-4a55-a96f-fff4cd595be8}"; // Our AppId
         private static readonly object lockObject = new object();
         #endregion
 

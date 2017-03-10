@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <Import Project="..\packages\PostSharp.5.0.20-preview\build\PostSharp.props" Condition="Exists('..\packages\PostSharp.5.0.20-preview\build\PostSharp.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -33,7 +34,6 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <DontImportPostSharp>True</DontImportPostSharp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -112,22 +112,17 @@
       <HintPath>..\packages\NLog.4.4.3\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PostSharp, Version=4.3.29.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.4.3.29\lib\net35-client\PostSharp.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
+    <Reference Include="PostSharp, Version=5.0.20.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
+      <HintPath>..\packages\PostSharp.Redist.5.0.20-preview\lib\net45\PostSharp.dll</HintPath>
     </Reference>
-    <Reference Include="PostSharp.Patterns.Common, Version=4.3.29.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.Patterns.Common.4.3.29\lib\net45\PostSharp.Patterns.Common.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="PostSharp.Patterns.Common, Version=5.0.20.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
+      <HintPath>..\packages\PostSharp.Patterns.Common.Redist.5.0.20-preview\lib\net46\PostSharp.Patterns.Common.dll</HintPath>
     </Reference>
-    <Reference Include="PostSharp.Patterns.Model, Version=4.3.29.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.Patterns.Model.4.3.29\lib\net40\PostSharp.Patterns.Model.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="PostSharp.Patterns.Model, Version=5.0.20.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
+      <HintPath>..\packages\PostSharp.Patterns.Model.Redist.5.0.20-preview\lib\net40\PostSharp.Patterns.Model.dll</HintPath>
     </Reference>
-    <Reference Include="PostSharp.Patterns.Threading, Version=4.3.29.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.Patterns.Threading.4.3.29\lib\net45\PostSharp.Patterns.Threading.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="PostSharp.Patterns.Threading, Version=5.0.20.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
+      <HintPath>..\packages\PostSharp.Patterns.Threading.Redist.5.0.20-preview\lib\net45\PostSharp.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -148,6 +143,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
     <Reference Include="TA.Ascom.ReactiveCommunications, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\TA.Ascom.ReactiveCommunications.0.3.0\lib\net45\TA.Ascom.ReactiveCommunications.dll</HintPath>
       <Private>True</Private>
@@ -226,8 +222,19 @@
     </AdditionalFiles>
     <None Include="app.config" />
     <None Include="LocalServer.snk" />
-    <None Include="NLog.config" />
-    <None Include="NLog.dll.nlog" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+      <TransformOnBuild>true</TransformOnBuild>
+    </Content>
+    <None Include="NLog.Debug.config">
+      <DependentUpon>NLog.config</DependentUpon>
+      <IsTransformFile>True</IsTransformFile>
+    </None>
+    <None Include="NLog.Release.config">
+      <DependentUpon>NLog.config</DependentUpon>
+      <IsTransformFile>True</IsTransformFile>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -270,6 +277,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TA.PostSharp.Aspects\TA.PostSharp.Aspects.csproj">
+      <Project>{9CDCF319-DADC-41EB-B787-DE3862017E95}</Project>
+      <Name>TA.PostSharp.Aspects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TA.VellemanK8056.DeviceInterface\TA.VellemanK8056.DeviceInterface.csproj">
       <Project>{3015F05F-D747-4C3E-A0D4-EC2B3BD76C56}</Project>
       <Name>TA.VellemanK8056.DeviceInterface</Name>
@@ -293,16 +304,14 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\PostSharp.4.3.29\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.29\tools\PostSharp.targets')" />
-  <Target Name="EnsurePostSharpImported" BeforeTargets="BeforeBuild" Condition="'$(PostSharp30Imported)' == ''">
-    <Error Condition="!Exists('..\packages\PostSharp.4.3.29\tools\PostSharp.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://www.postsharp.net/links/nuget-restore." />
-    <Error Condition="Exists('..\packages\PostSharp.4.3.29\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
-  </Target>
   <Import Project="..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets" Condition="Exists('..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SlowCheetah.2.5.48\build\SlowCheetah.targets'))" />
+    <Error Condition="!Exists('..\packages\PostSharp.5.0.20-preview\build\PostSharp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PostSharp.5.0.20-preview\build\PostSharp.props'))" />
+    <Error Condition="!Exists('..\packages\PostSharp.5.0.20-preview\build\PostSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PostSharp.5.0.20-preview\build\PostSharp.targets'))" />
   </Target>
+  <Import Project="..\packages\PostSharp.5.0.20-preview\build\PostSharp.targets" Condition="Exists('..\packages\PostSharp.5.0.20-preview\build\PostSharp.targets')" />
 </Project>
