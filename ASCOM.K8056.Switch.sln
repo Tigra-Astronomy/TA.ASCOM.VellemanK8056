@@ -13,6 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TA.VellemanK8056.DeviceInte
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D092DBD-5AD5-45B1-8812-B87C3951FAE5}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		ASCOM.K8056.Switch.pssln = ASCOM.K8056.Switch.pssln
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 	EndProjectSection

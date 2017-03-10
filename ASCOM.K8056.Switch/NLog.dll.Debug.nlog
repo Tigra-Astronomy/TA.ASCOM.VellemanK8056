@@ -6,6 +6,6 @@
       xmlns="http://www.nlog-project.org/schemas/NLog.xsd">
   <rules xdt:Transform="Replace">
     <logger name="*" minlevel="Trace" writeTo="DebugView" />
-    <logger name="*" minlevel="Info" writeTo="LogFile" />
+    <logger name="*" minlevel="Debug" writeTo="LogFile" />
   </rules>
 </nlog>
